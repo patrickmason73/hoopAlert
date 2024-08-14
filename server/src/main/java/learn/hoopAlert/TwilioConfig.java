@@ -12,12 +12,18 @@ public class TwilioConfig {
     @Value("${twilio.auth.token}")
     private String authToken;
 
-    // Getters for the properties
+    @Value("${twilio.phone.number}")
+    private String phoneNumber;
+
     public String getAccountSid() {
         return accountSid;
     }
 
     public String getAuthToken() {
         return authToken;
+    }
+
+    public String getPhoneNumber() {
+        return phoneNumber;
     }
 }

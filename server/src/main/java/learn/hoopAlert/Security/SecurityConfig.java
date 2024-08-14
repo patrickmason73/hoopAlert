@@ -6,19 +6,20 @@ import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
+@EnableWebSecurity
 public class SecurityConfig {
 
     private final JwtConverter converter;
-    private final JwtRequestFilter jwtRequestFilter;
 
-    public SecurityConfig(JwtConverter converter, JwtRequestFilter jwtRequestFilter) {
+
+    public SecurityConfig(JwtConverter converter) {
         this.converter = converter;
-        this.jwtRequestFilter = jwtRequestFilter;
     }
 
     @Bean
@@ -35,26 +36,18 @@ public class SecurityConfig {
         // as they're evaluated in the order that they're added
         http.authorizeRequests()
                 // new...
+                .antMatchers(HttpMethod.POST, "/api/users/create").permitAll()
+                .antMatchers(HttpMethod.GET, "/api/users/user/*").permitAll()
+                .antMatchers(HttpMethod.POST, "/api/sms/send").permitAll()
                 .antMatchers("/authenticate").permitAll()
                 .antMatchers("/refresh_token").authenticated()
                 .antMatchers("/create_account").permitAll()
-                .antMatchers(HttpMethod.POST, "/api/sms/send").permitAll()
-                .antMatchers(HttpMethod.GET,
-                        "/order").permitAll()
-                .antMatchers(HttpMethod.GET,
-                        "/sighting", "/sighting/*").permitAll()
-                .antMatchers(HttpMethod.POST,
-                        "/sighting").hasAnyAuthority("USER", "ADMIN")
-                .antMatchers(HttpMethod.PUT,
-                        "/sighting/*").hasAnyAuthority("USER", "ADMIN")
-                .antMatchers(HttpMethod.DELETE,
-                        "/sighting/*").hasAnyAuthority("ADMIN")
 
                 // if we get to this point, let's deny all requests
-                .anyRequest().authenticated()
+                .antMatchers("/**").denyAll()
 
                 .and()
-                .addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilter(new JwtRequestFilter(authenticationManager(authConfig), converter))
                 .sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 

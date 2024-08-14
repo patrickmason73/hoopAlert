@@ -26,10 +26,19 @@ public class AppUser implements UserDetails {
     @Column(nullable = false)
     private boolean enabled;
 
-    @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"))
-    @Column(name = "role")
-    private List<String> roles;
+    @Column(unique = true, nullable = false)
+    private String email;
+
+    @Column(nullable = false, name = "phone_number", length = 20)
+    private String phoneNumber;
+
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+            name = "user_roles",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "role_id")
+    )
+    private List<Role> roles = new ArrayList<>();
 
     @ManyToMany
     @JoinTable(name = "user_team",
@@ -41,10 +50,12 @@ public class AppUser implements UserDetails {
     public AppUser() {
     }
 
-    public AppUser(String username, String passwordHash, boolean enabled) {
+    public AppUser(String username, String passwordHash, boolean enabled, String email, String phoneNumber) {
         this.username = username;
         this.passwordHash = passwordHash;
         this.enabled = enabled;
+        this.email = email;
+        this.phoneNumber = phoneNumber;
     }
 
     public <T> AppUser(int appUserId, String username, Object o, boolean b, List<T> list) {
@@ -84,11 +95,27 @@ public class AppUser implements UserDetails {
         this.enabled = enabled;
     }
 
-    public List<String> getRoles() {
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
+
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
+    }
+
+    public List<Role> getRoles() {
         return roles;
     }
 
-    public void setRoles(List<String> roles) {
+    public void setRoles(List<Role> roles) {
         this.roles = roles;
     }
 
@@ -102,7 +129,9 @@ public class AppUser implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return roles.stream().map(SimpleGrantedAuthority::new).collect(Collectors.toSet());
+        return roles.stream()
+                .map(role -> new SimpleGrantedAuthority(role.getName()))
+                .collect(Collectors.toSet());
     }
 
     @Override
@@ -132,4 +161,5 @@ public class AppUser implements UserDetails {
     public void setPassword(String password) {
         this.passwordHash = password;
     }
+
 }

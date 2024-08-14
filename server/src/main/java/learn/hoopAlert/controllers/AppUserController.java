@@ -18,12 +18,15 @@ public class AppUserController {
     }
 
     @PostMapping("/create")
-    public Result<AppUser> createUser(@RequestParam String username, @RequestParam String password) {
-        return appUserService.create(username, password);
+    public Result<AppUser> createUser(@RequestParam String username,
+                                      @RequestParam String password,
+                                      @RequestParam String phoneNumber,
+                                      @RequestParam String email) {
+        return appUserService.create(username, password, phoneNumber, email);
     }
 
     @GetMapping("/user/{username}")
     public AppUser getUserByUsername(@PathVariable String username) {
-        return (AppUser) appUserService.loadUserByUsername(username);
+        return appUserService.findByUsername(username);
     }
 }

@@ -17,24 +17,23 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-@Component
-public class JwtRequestFilter extends GenericFilterBean {
+
+public class JwtRequestFilter extends BasicAuthenticationFilter {
 
     private final JwtConverter converter;
 
-    @Autowired
-    public JwtRequestFilter(JwtConverter converter) {
+
+    public JwtRequestFilter(AuthenticationManager authenticationManager, JwtConverter converter) {
+        super(authenticationManager); // 1. Must satisfy the super class.
         this.converter = converter;
     }
 
     @Override
-    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
+    public void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
             throws IOException, ServletException {
 
-        HttpServletRequest httpRequest = (HttpServletRequest) request;
-        HttpServletResponse httpResponse = (HttpServletResponse) response;
 
-        String authorization = httpRequest.getHeader("Authorization");
+        String authorization = request.getHeader("Authorization");
         if (authorization != null && authorization.startsWith("Bearer ")) {
             String token = authorization.substring(7);
             AppUser user = converter.getUserFromToken(token);
@@ -44,7 +43,7 @@ public class JwtRequestFilter extends GenericFilterBean {
                         user, null, user.getAuthorities());
                 SecurityContextHolder.getContext().setAuthentication(auth);
             } else {
-                httpResponse.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                response.setStatus(HttpServletResponse.SC_FORBIDDEN);
                 return;
             }
         }

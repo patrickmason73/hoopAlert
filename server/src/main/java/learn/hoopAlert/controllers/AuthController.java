@@ -78,8 +78,11 @@ public class AuthController {
 
         String username = credentials.get("username");
         String password = credentials.get("password");
+        String email = credentials.get("email");
+        String phoneNumber = credentials.get("phoneNumber");
 
-        Result<AppUser> result = appUserService.create(username, password);
+        // Call the create method with the additional fields
+        Result<AppUser> result = appUserService.create(username, password, email, phoneNumber);
 
         // unhappy path...
         if (!result.isSuccess()) {

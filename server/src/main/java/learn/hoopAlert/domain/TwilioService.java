@@ -17,18 +17,18 @@ public class TwilioService {
 
     private final TwilioConfig twilioConfig;
 
-    @Autowired
+
     public TwilioService(TwilioConfig twilioConfig) {
         this.twilioConfig = twilioConfig;
+        // Initialize Twilio with the configuration
         Twilio.init(twilioConfig.getAccountSid(), twilioConfig.getAuthToken());
     }
 
     public void sendSms(SmsRequest smsRequest) {
         Message.creator(
-                        new PhoneNumber(smsRequest.getPhoneNumber()),  // To number
-                        new PhoneNumber("18887024741"),  // From number
-                        smsRequest.getMessage())                      // Message
+                        new com.twilio.type.PhoneNumber(smsRequest.getPhoneNumber()), // To number
+                        new com.twilio.type.PhoneNumber(twilioConfig.getPhoneNumber()), // From number
+                        smsRequest.getMessage()) // Message body
                 .create();
     }
-
 }

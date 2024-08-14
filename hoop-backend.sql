@@ -58,3 +58,8 @@ CREATE TABLE reminders (
 );
 
 INSERT INTO role (name) VALUES ('USER'), ('ADMIN');
+
+insert into users (username, password_hash, enabled, phone_number, email)
+    values
+    ('john@smith.com', '$2a$10$ntB7CsRKQzuLoKY3rfoAQen5nNyiC/U60wBsWnnYrtQQi8Z3IZzQa', 1, 1234567890, 'john@smith.com'),
+    ('sally@jones.com', '$2a$10$ntB7CsRKQzuLoKY3rfoAQen5nNyiC/U60wBsWnnYrtQQi8Z3IZzQa', 1, 9876543210, 'sally@jones.com');
