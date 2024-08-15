@@ -32,6 +32,10 @@ public class AppUser implements UserDetails {
     @Column(nullable = false, name = "phone_number", length = 20)
     private String phoneNumber;
 
+    @OneToMany(mappedBy = "user")
+    private Set<Reminder> reminders;
+
+
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "user_roles",

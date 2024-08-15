@@ -8,6 +8,7 @@ const SignUp = () => {
         phoneNumber: ''
     });
     const [message, setMessage] = useState('');
+    const [errors, setErrors] = useState([]);
 
     const handleChange = (e) => {
         setFormData({
@@ -18,6 +19,9 @@ const SignUp = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setErrors([]);
+        setMessage('');
+
         try {
             const response = await fetch('http://localhost:8080/create_account', {
                 method: 'POST',
@@ -27,9 +31,11 @@ const SignUp = () => {
                 body: JSON.stringify(formData)
             });
 
+            console.log(response);
+
             if (!response.ok) {
                 const errorData = await response.json();
-                setMessage('Error: ' + errorData.join(', '));
+                setErrors(errorData);
             } else {
                 const data = await response.json();
                 setMessage('Account created successfully! Your user ID is ' + data.appUserId);
@@ -66,7 +72,7 @@ const SignUp = () => {
                 <div>
                     <label>Email:</label>
                     <input
-                        type="email"
+                        type="text"
                         name="email"
                         value={formData.email}
                         onChange={handleChange}
@@ -76,7 +82,7 @@ const SignUp = () => {
                 <div>
                     <label>Phone Number:</label>
                     <input
-                        type="tel"
+                        type="text"
                         name="phoneNumber"
                         value={formData.phoneNumber}
                         onChange={handleChange}
@@ -85,6 +91,13 @@ const SignUp = () => {
                 </div>
                 <button type="submit">Sign Up</button>
             </form>
+            {errors.length > 0 && (
+                <ul>
+                    {errors.map((error, index) => (
+                        <li key={index} style={{ color: 'red' }}>{error}</li>
+                    ))}
+                </ul>
+            )}
             {message && <p>{message}</p>}
         </div>
     );

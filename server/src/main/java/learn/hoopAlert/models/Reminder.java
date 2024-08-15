@@ -1,6 +1,7 @@
 package learn.hoopAlert.models;
 
 import javax.persistence.*;
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
 
 @Entity
@@ -12,7 +13,7 @@ public class Reminder {
 
 
     @Column(nullable = false)
-    private LocalDateTime reminderTime;
+    private Timestamp reminderTime;
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
@@ -21,6 +22,18 @@ public class Reminder {
     @ManyToOne
     @JoinColumn(name = "team_id", nullable = false)
     private Team team;
+
+    public Team getTeam() {
+        return team;
+    }
+
+    public Timestamp getReminderTime() {
+        return reminderTime;
+    }
+
+    public AppUser getUser() {
+        return user;
+    }
 
     // Getters and setters
 }

@@ -4,8 +4,8 @@ import learn.hoopAlert.data.AppUserRepository;
 import learn.hoopAlert.data.RoleRepository;
 import learn.hoopAlert.models.AppUser;
 import learn.hoopAlert.models.Role;
+import learn.hoopAlert.models.Team;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.dao.DataIntegrityViolationException;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 @Service
@@ -33,19 +34,32 @@ public class AppUserService implements UserDetailsService {
         this.encoder = encoder;
     }
 
-    public AppUser findByUsername(String username) {
+    public  Optional<AppUser> findByUsername(String username) {
         return repository.findByUsername(username);
+    }
+
+    public  Optional<AppUser> findByPhoneNumber(String phoneNumber) {
+        return repository.findByPhoneNumber(phoneNumber);
+    }
+
+    public  Optional<AppUser> findByEmail(String email) {
+        return repository.findByEmail(email);
+    }
+
+    public Set<Team> getTeamsForUser(Long userId) {
+        Optional<AppUser> user = repository.findById(userId);
+        return user.map(AppUser::getTeams).orElse(Set.of());
     }
 
     @Override
     public AppUser loadUserByUsername(String username) throws UsernameNotFoundException {
-        AppUser appUser = repository.findByUsername(username);
+        Optional<AppUser> appUser = repository.findByUsername(username);
 
-        if (appUser == null || !appUser.isEnabled()) {
+        if (appUser.isEmpty()) {
             throw new UsernameNotFoundException(username + " not found");
         }
 
-        return appUser;
+        return appUser.get();
     }
 
     public Result<AppUser> create(String username, String password, String phoneNumber, String email) {
@@ -76,14 +90,48 @@ public class AppUserService implements UserDetailsService {
             result.setPayload(appUser);
         } catch (DataIntegrityViolationException e) {
             System.err.println("DataIntegrityViolationException: " + e.getMessage());
-//            result.addMessage(ActionStatus.INVALID, "The provided username already exists");
+  //          result.addMessage(ActionStatus.INVALID, "The provided username already exists");
         }
 
         return result;
     }
 
-    private Result<AppUser> validate(String username, String password, String email, String phoneNumber) {
+    public AppUser updateUser(Long userId, AppUser updatedUser) {
+        return repository.findById(userId)
+                .map(user -> {
+                    user.setUsername(updatedUser.getUsername());
+                    user.setPhoneNumber(updatedUser.getPhoneNumber());
+                    user.setEmail(updatedUser.getEmail());
+                    return repository.save(user);
+                }).orElseThrow(() -> new RuntimeException("User not found"));
+    }
+
+    public void deleteUser(Long userId) {
+        if (repository.existsById(userId)) {
+            repository.deleteById(userId);
+        } else {
+            throw new RuntimeException("User not found");
+        }
+    }
+
+    private Result<AppUser> validate(String username, String password, String phoneNumber,  String email) {
         Result<AppUser> result = new Result<>();
+
+
+        if (repository.findByUsername(username).isPresent()) {
+            result.addMessage(ActionStatus.INVALID, "Username already exists");
+            return result;
+        }
+
+        if (repository.findByEmail(email).isPresent()) {
+            result.addMessage(ActionStatus.INVALID, "Email already exists");
+            return result;
+        }
+
+        if (repository.findByPhoneNumber(phoneNumber).isPresent()) {
+            result.addMessage(ActionStatus.INVALID, "Phone number already exists");
+            return result;
+        }
 
         // Validate username
         if (username == null || username.isBlank()) {
@@ -157,12 +205,10 @@ public class AppUserService implements UserDetailsService {
     }
 
     private boolean isValidEmail(String email) {
-        // Basic email pattern check; consider using a more robust validation if needed
-        return email.matches("^[A-Za-z0-9+_.-]+@(.+)$");
+        return email.matches("^[\\w-.]+@([\\w-]+\\.)+[\\w-]{2,4}$");
     }
 
     private boolean isValidPhoneNumber(String phoneNumber) {
-        // Basic phone number validation: checks for digits and length
-        return phoneNumber.matches("^\\d{1,20}$");
+        return phoneNumber.matches("^\\+?[0-9\\-\\s()]{7,20}$");
     }
 }

@@ -6,7 +6,7 @@ import java.util.List;
 
 public class Result<T> {
     private ActionStatus status = ActionStatus.SUCCESS;
-    private ArrayList<String> messages = new ArrayList<>();
+    private List<String> messages = new ArrayList<>();
     private T payload;
 
     public ActionStatus getStatus() {
@@ -18,7 +18,7 @@ public class Result<T> {
     }
 
     public List<String> getMessages() {
-        return new ArrayList<>(messages);
+        return messages;
     }
 
     public void setPayload(T payload) {
@@ -27,11 +27,20 @@ public class Result<T> {
 
     public void addMessage(ActionStatus status, String message) {
         this.status = status;
-        messages.add(message);
+        this.messages.add(message);
     }
 
     public boolean isSuccess() {
-        return messages.size() == 0;
+        return status == ActionStatus.SUCCESS || messages.isEmpty();
+    }
+
+    public void setStatus(ActionStatus status) {
+        this.status = status;
+    }
+
+    public void addErrorMessage(String message) {
+        this.status = ActionStatus.INVALID; // Or other appropriate status for errors
+        this.messages.add(message);
     }
 }
 

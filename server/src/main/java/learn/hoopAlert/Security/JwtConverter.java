@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 import java.security.Key;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Component
@@ -62,11 +63,11 @@ public class JwtConverter {
             String authStr = (String) jws.getBody().get("authorities");
 
 
-            AppUser user = appUserService.findByUsername(username);
+            Optional<AppUser> user = appUserService.findByUsername(username);
 
-            if (user != null) {
-                // Ensure user has authorities set correctly
-                return new AppUser(user.getAppUserId(), username, user.getPassword(), true,
+            if (user.isPresent()) {
+                AppUser appUser = user.get();
+                return new AppUser(appUser.getAppUserId(), username, appUser.getPassword(), true,
                         Arrays.asList(authStr.split(",")));
             }
             

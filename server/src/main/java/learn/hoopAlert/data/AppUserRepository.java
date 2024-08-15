@@ -19,6 +19,8 @@ public interface AppUserRepository extends JpaRepository<AppUser, Long> {
     @Query("UPDATE AppUser u SET u.passwordHash = :password WHERE u.username = :username")
     void updatePasswordByUsername(@Param("password") String password, @Param("username") String username);
 
-    AppUser findByUsername(String username);
+    Optional<AppUser> findByUsername(String username);
+    Optional<AppUser> findByPhoneNumber(String phoneNumber);
+    Optional<AppUser> findByEmail(String email);
 
 }

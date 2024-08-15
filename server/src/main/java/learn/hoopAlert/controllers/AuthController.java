@@ -82,11 +82,17 @@ public class AuthController {
         String phoneNumber = credentials.get("phoneNumber");
 
         // Call the create method with the additional fields
-        Result<AppUser> result = appUserService.create(username, password, email, phoneNumber);
+        Result<AppUser> result = appUserService.create(username, password, phoneNumber, email);
 
         // unhappy path...
         if (!result.isSuccess()) {
             return new ResponseEntity<>(result.getMessages(), HttpStatus.BAD_REQUEST);
+        }
+
+        AppUser newUser = result.getPayload();
+        if (newUser == null) {
+            // Handle the case where the payload is unexpectedly null
+            throw new RuntimeException("Unexpected null payload after validation.");
         }
 
         // happy path...
