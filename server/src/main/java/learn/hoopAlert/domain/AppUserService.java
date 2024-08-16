@@ -184,24 +184,7 @@ public class AppUserService implements UserDetailsService {
     }
 
     private boolean isValidPassword(String password) {
-        if (password.length() < 8) {
-            return false;
-        }
-
-        int digits = 0;
-        int letters = 0;
-        int others = 0;
-        for (char c : password.toCharArray()) {
-            if (Character.isDigit(c)) {
-                digits++;
-            } else if (Character.isLetter(c)) {
-                letters++;
-            } else {
-                others++;
-            }
-        }
-
-        return digits > 0 && letters > 0 && others > 0;
+        return password.length() >= 8;
     }
 
     private boolean isValidEmail(String email) {

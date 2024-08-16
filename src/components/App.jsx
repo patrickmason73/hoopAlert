@@ -1,30 +1,28 @@
-import React, { useState } from "react";
-import { BrowserRouter as Router, Route, Routes, Link } from "react-router-dom";
+import React, { useContext, useState } from "react";
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import { UserContext } from "../context/UserContext";
 import Login from "./Login";
 import SignUp from "./Signup";
 import HomePage from "./HomePage";
 import Navbar from './Navbar';
-
+import Profile from "./Profile";
+import TeamSelection from "./TeamSelection";
 
 const App = () => {
-  const [isAuthenticated, setIsAuthenticated] = useState(!!localStorage.getItem("jwt"));
-
-  const handleLogin = () => setIsAuthenticated(true);
-  const handleLogout = () => {
-      localStorage.removeItem("jwt");
-      setIsAuthenticated(false);
+    const { user, logout } = useContext(UserContext);
+  
+    return (
+      <Router>
+        <Navbar isAuthenticated={!!user} onLogout={logout} />
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/signup" element={<SignUp />} />
+          <Route path="/profile" element={user ? <Profile /> : <Login />} />
+          <Route path="/login" element={<Login />} />
+        </Routes>
+      </Router>
+    );
   };
 
-    return (
-        <Router>
-            <Navbar isAuthenticated={isAuthenticated} onLogout={handleLogout} />
-            <Routes>
-                <Route path="/" element={<HomePage />} />
-                <Route path="/login" element={<Login onLogin={handleLogin} />} />
-                <Route path="/signup" element={<SignUp />} />
-            </Routes>
-        </Router>
-    );
-};
-
 export default App;
+
