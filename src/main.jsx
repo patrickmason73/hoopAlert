@@ -6,10 +6,8 @@ import './index.css'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <UserProvider>
-      
-    <App />
-
+    <UserProvider>   
+      <App />
     </UserProvider>
   </StrictMode>,
 )

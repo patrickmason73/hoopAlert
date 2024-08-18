@@ -1,6 +1,5 @@
 package learn.hoopAlert.models;
 
-import javax.persistence.Entity;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -8,6 +7,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import javax.persistence.*;
 import java.util.*;
 import java.util.stream.Collectors;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 @Entity
 @Table(name = "users")
@@ -35,7 +35,6 @@ public class AppUser implements UserDetails {
     @OneToMany(mappedBy = "user")
     private Set<Reminder> reminders;
 
-
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "user_roles",
@@ -48,6 +47,7 @@ public class AppUser implements UserDetails {
     @JoinTable(name = "user_team",
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "team_id"))
+    @JsonManagedReference
     private Set<Team> teams = new HashSet<>();
 
     // Constructors
@@ -158,12 +158,35 @@ public class AppUser implements UserDetails {
         return true;
     }
 
-    public Integer getAppUserId() {
-        return id.intValue();
-    }
-
     public void setPassword(String password) {
         this.passwordHash = password;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        AppUser appUser = (AppUser) o;
+        return Objects.equals(id, appUser.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
+
+    @Override
+    public String toString() {
+        return "AppUser{" +
+                "id=" + id +
+                ", username='" + username + '\'' +
+                ", passwordHash='" + passwordHash + '\'' +
+                ", enabled=" + enabled +
+                ", email='" + email + '\'' +
+                ", phoneNumber='" + phoneNumber + '\'' +
+                ", reminders=" + reminders +
+                ", roles=" + roles +
+                ", teams=" + teams +
+                '}';
+    }
 }

@@ -36,4 +36,5 @@ public class TeamController {
         Optional<Team> team = teamService.getTeamByNbaTeamId(nbaTeamId);
         return team.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
+
 }

@@ -1,52 +1,77 @@
-import React, { useEffect, useState, useContext } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { UserContext } from '../context/UserContext';
-import TeamSelection from './TeamSelection';
 
 const Profile = () => {
-  const { user } = useContext(UserContext);
+  const { token } = useContext(UserContext);
+  const [userData, setUserData] = useState(null);
   const [userTeams, setUserTeams] = useState([]);
+  const [error, setError] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
-    if (!user) {
-      // If no user is logged in, do not fetch teams and display a message instead
-      return;
-    }
-
-    // Fetch the teams associated with the logged-in user
-    const fetchUserTeams = async () => {
+    const fetchUserData = async () => {
       try {
-        const response = await fetch(`http//:localhost:8080/api/users/${user.id}/teams`, {
+        const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/users/profile`, {
           method: 'GET',
           headers: {
+            'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json',
-            // Authorization: `Bearer ${user.token}`, // Assuming token is used for authorization
           },
         });
+
         if (!response.ok) {
-          throw new Error('Failed to fetch user teams');
+          throw new Error('Failed to fetch user data');
         }
+
         const data = await response.json();
-        setUserTeams(data);
-      } catch (error) {
-        console.error('Error fetching user teams:', error);
+        setUserData(data);
+
+        // Fetch teams associated with the user
+        const teamsResponse = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/users/${data.id}/teams`, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        });
+
+        if (!teamsResponse.ok) {
+          throw new Error('Failed to fetch teams');
+        }
+
+        const teamsData = await teamsResponse.json();
+        setUserTeams(teamsData);
+
+      } catch (err) {
+        setError(err.message);
       }
     };
 
-    fetchUserTeams();
-  }, [user]);
+    if (token) {
+      fetchUserData();
+    }
+  }, [token]);
 
-  if (!user) {
-    return <p>Please log in to view your profile.</p>;
-  }
+  if (error) return <p style={{ color: 'red' }}>{error}</p>;
+  if (!userData) return <p>Loading...</p>;
 
   return (
     <div className="profile">
-      <h1>Welcome, {user.username}!</h1>
-      <p>Email: {user.email}</p>
-      <p>Phone Number: {user.phoneNumber}</p>
+      <h2>Profile</h2>
+      <p>Username: {userData.username}</p>
+      <p>Email: {userData.email}</p>
 
-      {/* Team selection component */}
-      <TeamSelection userTeams={userTeams} setUserTeams={setUserTeams}/>
+      <h3>Your Teams:</h3>
+      <ul>
+        {userTeams.map((team) => (
+          <li key={team.id}>{team.teamName}</li>
+        ))}
+      </ul>
+
+      <button onClick={() => navigate('/team-selection')}>
+        Select More Teams
+      </button>
     </div>
   );
 };

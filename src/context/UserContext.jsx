@@ -1,27 +1,22 @@
-import React, { createContext, useState, useContext } from 'react';
+import { createContext, useState } from 'react';
 
-// Create a Context for the user
 export const UserContext = createContext();
 
-// Create a custom hook to use the UserContext
-export const useUser = () => useContext(UserContext);
-
-// Create a Provider component
 export const UserProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
+  const [token, setToken] = useState(localStorage.getItem('token') || null);
 
-  const login = (userData) => {
-    setUser(userData);
-    localStorage.setItem('jwt', userData.token); // Store token in localStorage
+  const login = (token) => {
+    setToken(token);
+    localStorage.setItem('token', token);
   };
 
   const logout = () => {
-    setUser(null);
-    localStorage.removeItem('jwt');
+    setToken(null);
+    localStorage.removeItem('token');
   };
 
   return (
-    <UserContext.Provider value={{ user, login, logout }}>
+    <UserContext.Provider value={{ token, login, logout }}>
       {children}
     </UserContext.Provider>
   );

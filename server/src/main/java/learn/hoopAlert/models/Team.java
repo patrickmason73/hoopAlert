@@ -1,5 +1,7 @@
 package learn.hoopAlert.models;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.Set;
@@ -7,10 +9,10 @@ import java.util.Set;
 @Entity
 @Table(name = "teams")
 public class Team {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
 
     private String teamName;
 
@@ -20,15 +22,12 @@ public class Team {
 
     private String nbaTeamId;
 
-
     private String teamLogoUrl;
 
     private LocalDateTime createdAt = LocalDateTime.now();
 
-    @ManyToMany
-    @JoinTable(name = "user_team",
-            joinColumns = @JoinColumn(name = "team_id"),
-            inverseJoinColumns = @JoinColumn(name = "user_id"))
+    @ManyToMany(mappedBy = "teams")
+    @JsonBackReference
     private Set<AppUser> users;
 
     public Long getId() {

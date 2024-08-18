@@ -2,6 +2,7 @@ package learn.hoopAlert.domain;
 
 import learn.hoopAlert.data.AppUserRepository;
 import learn.hoopAlert.data.RoleRepository;
+import learn.hoopAlert.data.TeamRepository;
 import learn.hoopAlert.models.AppUser;
 import learn.hoopAlert.models.Role;
 import learn.hoopAlert.models.Team;
@@ -23,32 +24,72 @@ public class AppUserService implements UserDetailsService {
     private final AppUserRepository repository;
 
     @Autowired
-    private RoleRepository roleRepository;
+    private final RoleRepository roleRepository;
 
     @Autowired
     private final PasswordEncoder encoder;
 
-    public AppUserService(AppUserRepository repository, RoleRepository roleRepository, PasswordEncoder encoder) {
+    @Autowired
+    private final TeamRepository teamRepository;
+
+    public AppUserService(AppUserRepository repository, RoleRepository roleRepository, PasswordEncoder encoder, TeamRepository teamRepository) {
         this.repository = repository;
         this.roleRepository = roleRepository;
         this.encoder = encoder;
-    }
-
-    public  Optional<AppUser> findByUsername(String username) {
-        return repository.findByUsername(username);
-    }
-
-    public  Optional<AppUser> findByPhoneNumber(String phoneNumber) {
-        return repository.findByPhoneNumber(phoneNumber);
-    }
-
-    public  Optional<AppUser> findByEmail(String email) {
-        return repository.findByEmail(email);
+        this.teamRepository = teamRepository;
     }
 
     public Set<Team> getTeamsForUser(Long userId) {
         Optional<AppUser> user = repository.findById(userId);
         return user.map(AppUser::getTeams).orElse(Set.of());
+    }
+
+    public Result<Void> addTeamToUser(Long userId, Long teamId) {
+        Result<Void> result = new Result<>();
+
+        Optional<AppUser> userOpt = repository.findById(userId);
+        if (userOpt.isEmpty()) {
+            result.addMessage(ActionStatus.INVALID, "User not found");
+            return result;
+        }
+
+        Optional<Team> teamOpt = teamRepository.findById(teamId);
+        if (teamOpt.isEmpty()) {
+            result.addMessage(ActionStatus.INVALID, "Team not found");
+            return result;
+        }
+
+        AppUser user = userOpt.get();
+        Team team = teamOpt.get();
+
+        user.getTeams().add(team);
+        repository.save(user);
+
+        return result;
+    }
+
+    public Result<Void> removeTeamFromUser(Long userId, Long teamId) {
+        Result<Void> result = new Result<>();
+
+        Optional<AppUser> userOpt = repository.findById(userId);
+        if (userOpt.isEmpty()) {
+            result.addMessage(ActionStatus.INVALID, "User not found");
+            return result;
+        }
+
+        Optional<Team> teamOpt = teamRepository.findById(teamId);
+        if (teamOpt.isEmpty()) {
+            result.addMessage(ActionStatus.INVALID, "Team not found");
+            return result;
+        }
+
+        AppUser user = userOpt.get();
+        Team team = teamOpt.get();
+
+        user.getTeams().remove(team);
+        repository.save(user);
+
+        return result;
     }
 
     @Override
@@ -62,6 +103,18 @@ public class AppUserService implements UserDetailsService {
         return appUser.get();
     }
 
+    public Optional<AppUser> findByUsername(String username) {
+        return repository.findByUsername(username);
+    }
+
+    public Optional<AppUser> findByPhoneNumber(String phoneNumber) {
+        return repository.findByPhoneNumber(phoneNumber);
+    }
+
+    public Optional<AppUser> findByEmail(String email) {
+        return repository.findByEmail(email);
+    }
+
     public Result<AppUser> create(String username, String password, String phoneNumber, String email) {
         Result<AppUser> result = validate(username, password, phoneNumber, email);
         if (!result.isSuccess()) {
@@ -72,13 +125,13 @@ public class AppUserService implements UserDetailsService {
 
         AppUser appUser = new AppUser();
         appUser.setUsername(username);
-        appUser.setPasswordHash(password); // Ensure this is correct
+        appUser.setPasswordHash(password);
         appUser.setEnabled(true);
         appUser.setPhoneNumber(phoneNumber);
         appUser.setEmail(email);
 
         // Fetch the ROLE_USER role
-        Role userRole = roleRepository.findByName("USER"); // Make sure 'USER' role exists
+        Role userRole = roleRepository.findByName("USER");
         if (userRole == null) {
             userRole = new Role("USER");
             roleRepository.save(userRole);
@@ -90,7 +143,6 @@ public class AppUserService implements UserDetailsService {
             result.setPayload(appUser);
         } catch (DataIntegrityViolationException e) {
             System.err.println("DataIntegrityViolationException: " + e.getMessage());
-  //          result.addMessage(ActionStatus.INVALID, "The provided username already exists");
         }
 
         return result;
@@ -114,9 +166,8 @@ public class AppUserService implements UserDetailsService {
         }
     }
 
-    private Result<AppUser> validate(String username, String password, String phoneNumber,  String email) {
+    private Result<AppUser> validate(String username, String password, String phoneNumber, String email) {
         Result<AppUser> result = new Result<>();
-
 
         if (repository.findByUsername(username).isPresent()) {
             result.addMessage(ActionStatus.INVALID, "Username already exists");
@@ -133,7 +184,6 @@ public class AppUserService implements UserDetailsService {
             return result;
         }
 
-        // Validate username
         if (username == null || username.isBlank()) {
             result.addMessage(ActionStatus.INVALID, "Username is required");
             return result;
@@ -143,7 +193,6 @@ public class AppUserService implements UserDetailsService {
             result.addMessage(ActionStatus.INVALID, "Username must be less than 50 characters");
         }
 
-        // Validate password
         if (password == null) {
             result.addMessage(ActionStatus.INVALID, "Password is required");
             return result;
@@ -155,7 +204,6 @@ public class AppUserService implements UserDetailsService {
                             "a letter, and a non-digit/non-letter");
         }
 
-        // Validate email
         if (email == null || email.isBlank()) {
             result.addMessage(ActionStatus.INVALID, "Email is required");
             return result;
@@ -165,7 +213,6 @@ public class AppUserService implements UserDetailsService {
             result.addMessage(ActionStatus.INVALID, "Invalid email format");
         }
 
-        // Validate phone number
         if (phoneNumber == null || phoneNumber.isBlank()) {
             result.addMessage(ActionStatus.INVALID, "Phone number is required");
             return result;

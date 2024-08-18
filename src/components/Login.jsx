@@ -11,7 +11,7 @@ const Login = () => {
 
   const handleLogin = async (e) => {
     e.preventDefault();
-
+  
     try {
       const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/authenticate`, {
         method: 'POST',
@@ -20,22 +20,22 @@ const Login = () => {
         },
         body: JSON.stringify({ username, password }),
       });
-
+  
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.message || 'Login failed');
       }
-
+  
       const data = await response.json();
 
-      // Store both the user data and token separately
-      login({
-        id: data.userId,
-        username: data.username,
-      }, data.token);
-
+      console.log('Login response:', data)
+  
+      // Store only the token
+      login(data.jwt_token);  // Adjust to store just the token
+  
       navigate('/profile');
     } catch (err) {
+      console.error('Login error:', err);
       setError(err.message);
     }
   };

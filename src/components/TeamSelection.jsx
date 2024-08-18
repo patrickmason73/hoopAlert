@@ -1,23 +1,30 @@
-import React, { useEffect, useState } from 'react';
-import { useUser } from '../context/UserContext'; // Adjust import path as needed
+import React, { useEffect, useState, useContext } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { UserContext } from '../context/UserContext';
 
-const TeamSelection = ({ userTeams, setUserTeams }) => {
-  const { user } = useUser();
+const TeamSelection = () => {
+  const { token } = useContext(UserContext);
   const [teams, setTeams] = useState([]);
+  const [userTeams, setUserTeams] = useState([]);
+  const [userId, setUserId] = useState(null); // Store userId from profile
+  const navigate = useNavigate();
 
   useEffect(() => {
-    // Fetch all teams to display
+    // Fetch all teams
     const fetchTeams = async () => {
       try {
-        const response = await fetch(`http://localhost:8080/api/teams`, {
+        const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/teams`, {
           method: 'GET',
           headers: {
+            'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json',
           },
         });
+
         if (!response.ok) {
           throw new Error('Failed to fetch teams');
         }
+
         const data = await response.json();
         setTeams(data);
       } catch (error) {
@@ -26,25 +33,52 @@ const TeamSelection = ({ userTeams, setUserTeams }) => {
     };
 
     fetchTeams();
-  }, []);
+
+    // Fetch the user's current selected teams and their userId
+    const fetchUserTeams = async () => {
+      try {
+        const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/users/profile`, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch user teams');
+        }
+
+        const userData = await response.json();
+        setUserId(userData.id); // Set userId from the profile data
+        setUserTeams(userData.teams.map(team => team.id)); // Assume teams are returned with `id`
+      } catch (error) {
+        console.error('Error fetching user teams:', error);
+      }
+    };
+
+    fetchUserTeams();
+
+  }, [token]);
 
   const handleCheckboxChange = async (teamId, isChecked) => {
     try {
-      const response = await fetch(`http://localhost:8080/api/users/${user.id}/teams/${teamId}`, {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/users/${userId}/teams/${teamId}`, {
         method: isChecked ? 'POST' : 'DELETE',
         headers: {
+          'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${user.token}`, // Assuming token is used for authorization
         },
       });
+
       if (!response.ok) {
         throw new Error('Failed to update team selection');
       }
-      // Update userTeams state based on checkbox status
+
       if (isChecked) {
-        setUserTeams((prevTeams) => [...prevTeams, teamId]);
+        setUserTeams(prevTeams => [...prevTeams, teamId]);
       } else {
-        setUserTeams((prevTeams) => prevTeams.filter((id) => id !== teamId));
+        setUserTeams(prevTeams => prevTeams.filter(id => id !== teamId));
       }
     } catch (error) {
       console.error('Error updating team selection:', error);
@@ -67,6 +101,7 @@ const TeamSelection = ({ userTeams, setUserTeams }) => {
           </label>
         </div>
       ))}
+      <button onClick={() => navigate('/profile')}>Back to Profile</button>
     </div>
   );
 };

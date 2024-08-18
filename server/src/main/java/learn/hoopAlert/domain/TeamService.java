@@ -12,8 +12,6 @@ public class TeamService {
 
     private final TeamRepository teamRepository;
 
-
-
     public TeamService(TeamRepository teamRepository) {
         this.teamRepository = teamRepository;
     }
@@ -30,4 +28,11 @@ public class TeamService {
         return teamRepository.findByNbaTeamId(nbaTeamId);
     }
 
+    public Team saveTeam(Team team) {
+        return teamRepository.save(team);
+    }
+
+    public void deleteTeamById(Long id) {
+        teamRepository.deleteById(id);
+    }
 }

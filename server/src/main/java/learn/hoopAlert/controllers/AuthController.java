@@ -1,10 +1,9 @@
 package learn.hoopAlert.controllers;
 
-import learn.hoopAlert.Security.JwtUtil;
+import learn.hoopAlert.Security.JwtService;
 import learn.hoopAlert.domain.Result;
 import learn.hoopAlert.models.AppUser;
 import learn.hoopAlert.domain.AppUserService;
-import learn.hoopAlert.Security.JwtConverter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,18 +23,16 @@ import java.util.Map;
 public class AuthController {
 
     private final AuthenticationManager authenticationManager;
-    private final JwtConverter converter;
+    private final JwtService converter;
     private final AppUserService appUserService;
-    private final JwtUtil jwtUtil;
 
     @Autowired
     public AuthController(AuthenticationManager authenticationManager,
-                          JwtConverter converter,
-                          AppUserService appUserService, JwtUtil jwtUtil) {
+                          JwtService converter,
+                          AppUserService appUserService) {
         this.authenticationManager = authenticationManager;
         this.converter = converter;
         this.appUserService = appUserService;
-        this.jwtUtil = jwtUtil;
     }
 
     @PostMapping("/authenticate")
@@ -96,8 +93,8 @@ public class AuthController {
         }
 
         // happy path...
-        HashMap<String, Integer> map = new HashMap<>();
-        map.put("appUserId", result.getPayload().getAppUserId());
+        HashMap<String, Long> map = new HashMap<>();
+        map.put("appUserId", newUser.getId()); // Use getId() instead of getAppUserId()
 
         return new ResponseEntity<>(map, HttpStatus.CREATED);
     }
