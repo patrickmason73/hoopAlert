@@ -4,7 +4,9 @@ import learn.hoopAlert.data.AppUserRepository;
 import learn.hoopAlert.data.RoleRepository;
 import learn.hoopAlert.data.TeamRepository;
 import learn.hoopAlert.models.AppUser;
+import learn.hoopAlert.models.Reminder;
 import learn.hoopAlert.models.Role;
+import learn.hoopAlert.models.Schedule;
 import learn.hoopAlert.models.Team;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -13,6 +15,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.dao.DataIntegrityViolationException;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -20,28 +23,32 @@ import java.util.Set;
 @Service
 public class AppUserService implements UserDetailsService {
 
-    @Autowired
     private final AppUserRepository repository;
-
-    @Autowired
     private final RoleRepository roleRepository;
-
-    @Autowired
     private final PasswordEncoder encoder;
+    private final TeamRepository teamRepository;
+    private final ReminderService reminderService;
 
     @Autowired
-    private final TeamRepository teamRepository;
-
-    public AppUserService(AppUserRepository repository, RoleRepository roleRepository, PasswordEncoder encoder, TeamRepository teamRepository) {
+    public AppUserService(AppUserRepository repository,
+                          RoleRepository roleRepository,
+                          PasswordEncoder encoder,
+                          TeamRepository teamRepository,
+                          ReminderService reminderService) {
         this.repository = repository;
         this.roleRepository = roleRepository;
         this.encoder = encoder;
         this.teamRepository = teamRepository;
+        this.reminderService = reminderService;
     }
 
     public Set<Team> getTeamsForUser(Long userId) {
         Optional<AppUser> user = repository.findById(userId);
         return user.map(AppUser::getTeams).orElse(Set.of());
+    }
+
+    public Optional<Team> findTeamById(Long teamId) {
+        return teamRepository.findById(teamId);
     }
 
     public Result<Void> addTeamToUser(Long userId, Long teamId) {
@@ -62,8 +69,12 @@ public class AppUserService implements UserDetailsService {
         AppUser user = userOpt.get();
         Team team = teamOpt.get();
 
+        // Add the team to the user's list of teams
         user.getTeams().add(team);
         repository.save(user);
+
+        // Create reminders for this user and team
+        reminderService.createRemindersForTeam(user, team);
 
         return result;
     }
@@ -86,8 +97,12 @@ public class AppUserService implements UserDetailsService {
         AppUser user = userOpt.get();
         Team team = teamOpt.get();
 
+        // Remove the team from the user's list of teams
         user.getTeams().remove(team);
         repository.save(user);
+
+        // Delete reminders for this user and team
+        reminderService.deleteRemindersForTeam(user, team);
 
         return result;
     }
@@ -101,6 +116,10 @@ public class AppUserService implements UserDetailsService {
         }
 
         return appUser.get();
+    }
+
+    public Optional<AppUser> findById(Long userId) {
+        return repository.findById(userId);
     }
 
     public Optional<AppUser> findByUsername(String username) {

@@ -33,7 +33,6 @@ public class JwtService {
     public JwtService(AppUserService appUserService, @Value("${jwt.secret}") String secret) {
         this.appUserService = appUserService;
         this.key = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
-        System.out.println("Secret Key: " + Base64.getEncoder().encodeToString(secret.getBytes(StandardCharsets.UTF_8)));
     }
 
     // Token generation
@@ -110,7 +109,6 @@ public class JwtService {
 
     // Token parsing and user retrieval
     public AppUser getUserFromToken(String token) {
-        System.out.println("Received Token: " + token);
 
         if (token == null) {
             System.out.println("Invalid token format.");
@@ -127,10 +125,10 @@ public class JwtService {
             String username = jws.getBody().getSubject();
             String authStr = (String) jws.getBody().get("authorities");
 
-            if (username == null || authStr == null) {
-                System.out.println("Missing username or authorities in token.");
-                return null;
-            }
+//            if (username == null || authStr == null) {
+//                System.out.println("Missing username or authorities in token.");
+//                return null;
+//            }
 
             Optional<AppUser> user = appUserService.findByUsername(username);
 

@@ -7,10 +7,10 @@ import HomePage from './HomePage';
 import Navbar from './Navbar';
 import Profile from './Profile';
 import TeamSelection from './TeamSelection';
+import TeamStats from './TeamStats';
 
 const App = () => {
   const { token, logout } = useContext(UserContext);
-  console.log('User token in App:', token); // Debugging line
   
   return (
     <Router>
@@ -21,6 +21,7 @@ const App = () => {
         <Route path="/profile" element={token ? <Profile /> : <Login />} />
         <Route path="/team-selection" element={token ? <TeamSelection /> : <Login />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/team-stats" element={<TeamStats />} />
       </Routes>
     </Router>
     );

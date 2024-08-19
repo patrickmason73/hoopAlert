@@ -10,6 +10,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 public class App {
 
     public static void main(String[] args) {
+        System.out.println("Current JVM timezone: " + java.util.TimeZone.getDefault().getID());
         SpringApplication.run(App.class, args);
     }
 }

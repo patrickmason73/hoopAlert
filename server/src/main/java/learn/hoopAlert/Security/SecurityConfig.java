@@ -30,9 +30,25 @@ public class SecurityConfig {
         http.cors();
 
         http.authorizeRequests()
-                .antMatchers("/api/users/create", "/api/users/user/**", "/api/teams", "/api/teams/*", "/api/sms/send", "/authenticate", "/create_account").permitAll()
-                .antMatchers(HttpMethod.GET, "/api/users/profile").authenticated()
-                .antMatchers("/api/users/{userId}/teams/**", "/api/reminders", "/refresh_token").authenticated()
+                .antMatchers("/api/users/create",
+                        "/api/users/user/**",
+                        "/api/teams",
+                        "/api/teams/*",
+                        "/api/sms/send",
+                        "/authenticate",
+                        "/create_account",
+                        "/api/proxy/**").permitAll()
+
+
+                // Public or test-specific endpoints
+                .antMatchers(HttpMethod.POST, "/api/reminders/trigger/{date}").permitAll()
+
+                .antMatchers("/api/reminders/trigger/today").authenticated()
+                .antMatchers("/api/users/profile").authenticated()
+                .antMatchers("/api/users/{userId}/teams/**",
+                        "/api/reminders",
+                        "/api/schedules/**",
+                        "/refresh_token").authenticated()
                 .antMatchers("/**").denyAll()
                 .and()
                 .addFilter(new JwtRequestFilter(authenticationManager(authConfig), converter))

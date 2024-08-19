@@ -1,37 +1,74 @@
 package learn.hoopAlert.domain;
 
-import com.twilio.rest.chat.v1.service.User;
-import learn.hoopAlert.data.AppUserRepository;
 import learn.hoopAlert.data.ReminderRepository;
-import learn.hoopAlert.data.TeamRepository;
-import learn.hoopAlert.models.Game;
-import learn.hoopAlert.models.AppUser;
 import learn.hoopAlert.models.Reminder;
+import learn.hoopAlert.models.Schedule;
 import learn.hoopAlert.models.SmsRequest;
+import learn.hoopAlert.models.Team;
+import learn.hoopAlert.models.AppUser;
+import learn.hoopAlert.data.ScheduleRepository;
+import learn.hoopAlert.domain.TwilioService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
 public class ReminderService {
 
+    private static final Logger logger = LoggerFactory.getLogger(ReminderService.class);
+
     private final ReminderRepository reminderRepository;
-    private final AppUserRepository userRepository;
-    private final TeamRepository teamRepository;
+    private final ScheduleRepository scheduleRepository;
     private final TwilioService twilioService;
 
-    public ReminderService(ReminderRepository reminderRepository, AppUserRepository userRepository, TeamRepository teamRepository, TwilioService twilioService) {
+    @Autowired
+    public ReminderService(ReminderRepository reminderRepository, ScheduleRepository scheduleRepository, TwilioService twilioService) {
         this.reminderRepository = reminderRepository;
-        this.userRepository = userRepository;
-        this.teamRepository = teamRepository;
+        this.scheduleRepository = scheduleRepository;
         this.twilioService = twilioService;
     }
+
     public Reminder createReminder(Reminder reminder) {
         return reminderRepository.save(reminder);
+    }
+
+    // Updated method to find reminders by LocalDateTime
+    public List<Reminder> findRemindersByDate(LocalDateTime startOfDay) {
+        LocalDateTime endOfDay = startOfDay.plusDays(1).minusSeconds(1); // Calculate end of day
+        return reminderRepository.findByReminderTimeBetween(startOfDay, endOfDay); // Find reminders between start and end of the day
+    }
+
+    // Method to create reminders for all upcoming games of a team for a specific user
+    public void createRemindersForTeam(AppUser user, Team team) {
+        List<Schedule> upcomingGames = scheduleRepository.findByHomeTeamOrAwayTeam(team, team);
+
+        for (Schedule game : upcomingGames) {
+            // Use reminderTime instead of gameDate to check for existing reminders
+            LocalDateTime reminderTime = game.getGameDate().minusHours(1);
+            boolean reminderExists = reminderRepository.existsByUserAndTeamAndReminderTime(user, team, reminderTime);
+
+            if (!reminderExists) {
+                Reminder reminder = new Reminder();
+                reminder.setUser(user);
+                reminder.setTeam(team);
+                reminder.setReminderTime(reminderTime); // Reminder set 1 hour before game
+                reminder.setOpponent(game.getAwayTeam().equals(team) ? game.getHomeTeam().getTeamName() : game.getAwayTeam().getTeamName());
+                reminder.setGameTime(game.getGameDate().toLocalTime().toString());
+
+                createReminder(reminder);
+            }
+        }
+    }
+
+    // Method to delete all reminders for a specific user and team
+    public void deleteRemindersForTeam(AppUser user, Team team) {
+        List<Reminder> reminders = reminderRepository.findByUserAndTeam(user, team);
+        reminderRepository.deleteAll(reminders);
     }
 
     // Method to check and send reminders
@@ -39,29 +76,24 @@ public class ReminderService {
     public void checkAndSendReminders() {
         List<Reminder> reminders = reminderRepository.findAll();
         for (Reminder reminder : reminders) {
-            // Check if the current time matches the reminder time
             if (shouldSendReminder(reminder)) {
-                sendReminder(reminder);
+                String message = "Gameday! " + reminder.getTeam().getTeamName() + " is playing vs "
+                        + reminder.getOpponent() + " at " + reminder.getGameTime() + " today!";
+                sendReminder(reminder, message);
             }
         }
     }
 
     private boolean shouldSendReminder(Reminder reminder) {
-        LocalDateTime now = LocalDateTime.now(); // Current time
-        LocalDateTime reminderDateTime = reminder.getReminderTime().toLocalDateTime(); // Reminder time
-
-        // Check if the current time is within a certain window before the reminder time
-        // ex: if we want to send reminders 1 hour before the game
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime reminderDateTime = reminder.getReminderTime();
         LocalDateTime reminderWindowStart = reminderDateTime.minusHours(1);
         LocalDateTime reminderWindowEnd = reminderDateTime;
-
-        // Check if current time falls within the reminder window
         return now.isAfter(reminderWindowStart) && now.isBefore(reminderWindowEnd);
     }
 
-    private void sendReminder(Reminder reminder) {
-        String message = String.format("The %s has a game at %s tonight!",
-                reminder.getTeam().getTeamName(), reminder.getReminderTime());
-        twilioService.sendSms(new SmsRequest(reminder.getUser().getPhoneNumber(), message));
+    public void sendReminder(Reminder reminder, String message) {
+        SmsRequest smsRequest = new SmsRequest(reminder.getUser().getPhoneNumber(), message);
+        twilioService.sendSms(smsRequest);
     }
 }

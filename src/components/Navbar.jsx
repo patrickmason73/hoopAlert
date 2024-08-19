@@ -5,6 +5,8 @@ const Navbar = ({ isAuthenticated, onLogout }) => {
   return (
     <nav>
       <Link to="/">Home</Link>
+      <Link to="/team-stats">Team Stats</Link>
+
       {isAuthenticated ? (
         <>
           <Link to="/profile">Profile</Link>

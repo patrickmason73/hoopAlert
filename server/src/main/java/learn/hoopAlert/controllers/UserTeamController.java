@@ -17,15 +17,15 @@ public class UserTeamController {
         this.userTeamService = userTeamService;
     }
 
-    @PostMapping("/{userId}/teams/{teamId}")
-    public ResponseEntity<AppUser> addTeamToUser(@PathVariable Long userId, @PathVariable Long teamId) {
-        Optional<AppUser> user = userTeamService.addTeamToUser(userId, teamId);
-        return user.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
-    }
-
-    @DeleteMapping("/{userId}/teams/{teamId}")
-    public ResponseEntity<AppUser> removeTeamFromUser(@PathVariable Long userId, @PathVariable Long teamId) {
-        Optional<AppUser> user = userTeamService.removeTeamFromUser(userId, teamId);
-        return user.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
-    }
+//    @PostMapping("/{userId}/teams/{teamId}")
+//    public ResponseEntity<AppUser> addTeamToUser(@PathVariable Long userId, @PathVariable Long teamId) {
+//        Optional<AppUser> user = userTeamService.addTeamToUser(userId, teamId);
+//        return user.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+//    }
+//
+//    @DeleteMapping("/{userId}/teams/{teamId}")
+//    public ResponseEntity<AppUser> removeTeamFromUser(@PathVariable Long userId, @PathVariable Long teamId) {
+//        Optional<AppUser> user = userTeamService.removeTeamFromUser(userId, teamId);
+//        return user.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+//    }
 }

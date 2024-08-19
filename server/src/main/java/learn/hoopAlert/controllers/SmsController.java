@@ -2,8 +2,6 @@ package learn.hoopAlert.controllers;
 
 import learn.hoopAlert.models.SmsRequest;
 import learn.hoopAlert.domain.TwilioService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -12,7 +10,6 @@ import org.springframework.web.bind.annotation.*;
 public class SmsController {
 
     private final TwilioService twilioService;
-
 
     public SmsController(TwilioService twilioService) {
         this.twilioService = twilioService;

@@ -7,6 +7,7 @@ const Profile = () => {
   const [userData, setUserData] = useState(null);
   const [userTeams, setUserTeams] = useState([]);
   const [error, setError] = useState(null);
+  const [triggerMessage, setTriggerMessage] = useState(''); // New state for trigger message
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -53,6 +54,23 @@ const Profile = () => {
     }
   }, [token]);
 
+  const triggerRemindersForToday = () => {
+    fetch(`${import.meta.env.VITE_API_BASE_URL}/api/reminders/trigger/today`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    })
+      .then(response => response.text())
+      .then(data => {
+        setTriggerMessage(data);
+      })
+      .catch(error => {
+        console.error('Error triggering reminders:', error);
+        setTriggerMessage('Failed to trigger reminders.');
+      });
+  };
+
   if (error) return <p style={{ color: 'red' }}>{error}</p>;
   if (!userData) return <p>Loading...</p>;
 
@@ -60,7 +78,7 @@ const Profile = () => {
     <div className="profile">
       <h2>Profile</h2>
       <p>Username: {userData.username}</p>
-      <p>Email: {userData.email}</p>
+      <p>Phone: {userData.phoneNumber}</p>
 
       <h3>Your Teams:</h3>
       <ul>
@@ -72,6 +90,13 @@ const Profile = () => {
       <button onClick={() => navigate('/team-selection')}>
         Select More Teams
       </button>
+
+      <button onClick={triggerRemindersForToday}>
+        Trigger Today's Reminders
+      </button>
+
+      {/* Display the trigger message */}
+      {triggerMessage && <p>{triggerMessage}</p>}
     </div>
   );
 };

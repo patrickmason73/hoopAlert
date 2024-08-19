@@ -2,15 +2,14 @@ package learn.hoopAlert.controllers;
 
 import learn.hoopAlert.Security.JwtService;
 import learn.hoopAlert.domain.AppUserService;
+import learn.hoopAlert.domain.ReminderService;
+import learn.hoopAlert.domain.UserTeamService;
 import learn.hoopAlert.models.AppUser;
 import learn.hoopAlert.models.Team;
 import learn.hoopAlert.domain.Result;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -23,11 +22,15 @@ public class AppUserController {
 
     private final AppUserService appUserService;
     private final JwtService jwtConverter;
+    private final UserTeamService userTeamService;
+    private final ReminderService reminderService;
 
     @Autowired
-    public AppUserController(AppUserService appUserService, JwtService jwtConverter) {
+    public AppUserController(AppUserService appUserService, JwtService jwtConverter, UserTeamService userTeamService, ReminderService reminderService) {
         this.appUserService = appUserService;
         this.jwtConverter = jwtConverter;
+        this.userTeamService = userTeamService;
+        this.reminderService = reminderService;
     }
 
     @GetMapping("/{userId}/teams")
@@ -36,25 +39,41 @@ public class AppUserController {
         return ResponseEntity.ok(teams);
     }
 
-//    @PostMapping("/{userId}/teams/{teamId}")
-//    public ResponseEntity<?> addTeamToUser(@PathVariable Long userId, @PathVariable Long teamId) {
-//        Result<Void> result = appUserService.addTeamToUser(userId, teamId);
-//        if (result.isSuccess()) {
-//            return ResponseEntity.ok().build();
-//        } else {
-//            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result.getMessages());
-//        }
-//    }
+    @PostMapping("/{userId}/teams/{teamId}")
+    public ResponseEntity<?> addTeamToUser(@PathVariable Long userId, @PathVariable Long teamId) {
+        Result<Void> result = appUserService.addTeamToUser(userId, teamId);
+        if (result.isSuccess()) {
+            Optional<AppUser> userOpt = appUserService.findById(userId); // Fetch AppUser
+            Optional<Team> teamOpt = appUserService.findTeamById(teamId); // Fetch Team
 
-//    @DeleteMapping("/{userId}/teams/{teamId}")
-//    public ResponseEntity<?> removeTeamFromUser(@PathVariable Long userId, @PathVariable Long teamId) {
-//        Result<Void> result = appUserService.removeTeamFromUser(userId, teamId);
-//        if (result.isSuccess()) {
-//            return ResponseEntity.ok().build();
-//        } else {
-//            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result.getMessages());
-//        }
-//    }
+            if (userOpt.isPresent() && teamOpt.isPresent()) {
+                reminderService.createRemindersForTeam(userOpt.get(), teamOpt.get());  // Create reminders
+                return ResponseEntity.ok().build();
+            } else {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("User or Team not found.");
+            }
+        } else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result.getMessages());
+        }
+    }
+
+    @DeleteMapping("/{userId}/teams/{teamId}")
+    public ResponseEntity<?> removeTeamFromUser(@PathVariable Long userId, @PathVariable Long teamId) {
+        Result<Void> result = appUserService.removeTeamFromUser(userId, teamId);
+        if (result.isSuccess()) {
+            Optional<AppUser> userOpt = appUserService.findById(userId); // Fetch AppUser
+            Optional<Team> teamOpt = appUserService.findTeamById(teamId); // Fetch Team
+
+            if (userOpt.isPresent() && teamOpt.isPresent()) {
+                reminderService.deleteRemindersForTeam(userOpt.get(), teamOpt.get());  // Delete reminders
+                return ResponseEntity.ok().build();
+            } else {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("User or Team not found.");
+            }
+        } else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result.getMessages());
+        }
+    }
 
     @PostMapping("/create")
     public Result<AppUser> createUser(@RequestParam String username,
