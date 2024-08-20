@@ -4,10 +4,19 @@ import { UserContext } from '../context/UserContext';
 
 const Profile = () => {
   const { token } = useContext(UserContext);
-  const [userData, setUserData] = useState(null);
+  const [userData, setUserData] = useState({
+    username: '',
+    phoneNumber: '',
+    email: ''
+  });
   const [userTeams, setUserTeams] = useState([]);
   const [error, setError] = useState(null);
   const [triggerMessage, setTriggerMessage] = useState(''); // New state for trigger message
+  const [updateMessage, setUpdateMessage] = useState(''); // State to show success/error messages for updates
+  const [isEditing, setIsEditing] = useState(false); // State to toggle edit form visibility
+  const [editData, setEditData] = useState({ ...userData }); // Separate state for form input
+
+
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -49,6 +58,9 @@ const Profile = () => {
       }
     };
 
+    console.log('Token in Profile:', token);
+
+
     if (token) {
       fetchUserData();
     }
@@ -71,6 +83,49 @@ const Profile = () => {
       });
   };
 
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setEditData({
+      ...editData,
+      [name]: value,
+    });
+  };
+
+  const handleFormSubmit = async (e) => {
+    e.preventDefault();
+
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/users/${userData.id}`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(editData),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to update user data');
+      }
+
+      const updatedUser = await response.json();
+      setUserData(updatedUser); // Update main state after successful update
+      setUpdateMessage('Profile updated successfully!');
+      setIsEditing(false); // Hide the form after successful update
+    } catch (err) {
+      setError(err.message);
+      setUpdateMessage('Failed to update profile.');
+    }
+  };
+
+  const toggleEditForm = () => {
+    setIsEditing(!isEditing);
+    if (!isEditing) {
+      setEditData(userData); // Reset edit form data when opening the form
+    }
+  };
+
+
   if (error) return <p style={{ color: 'red' }}>{error}</p>;
   if (!userData) return <p>Loading...</p>;
 
@@ -79,6 +134,52 @@ const Profile = () => {
       <h2>Profile</h2>
       <p>Username: {userData.username}</p>
       <p>Phone: {userData.phoneNumber}</p>
+      <p>Email: {userData.email}</p>
+
+      <button onClick={toggleEditForm}>
+        {isEditing ? 'Cancel Edit' : 'Edit Profile'}
+      </button>
+
+      {isEditing && (
+        <form onSubmit={handleFormSubmit}>
+          <div>
+            <label htmlFor="username">Username:</label>
+            <input
+              type="text"
+              id="username"
+              name="username"
+              value={editData.username}
+              onChange={handleInputChange}
+              required
+            />
+          </div>
+          <div>
+            <label htmlFor="phoneNumber">Phone:</label>
+            <input
+              type="text"
+              id="phoneNumber"
+              name="phoneNumber"
+              value={editData.phoneNumber}
+              onChange={handleInputChange}
+              required
+            />
+          </div>
+          <div>
+            <label htmlFor="email">Email:</label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              value={editData.email}
+              onChange={handleInputChange}
+              required
+            />
+          </div>
+          <button type="submit">Update Profile</button>
+        </form>
+      )}
+
+      {updateMessage && <p>{updateMessage}</p>}
 
       <h3>Your Teams:</h3>
       <ul>
@@ -95,7 +196,6 @@ const Profile = () => {
         Trigger Today's Reminders
       </button>
 
-      {/* Display the trigger message */}
       {triggerMessage && <p>{triggerMessage}</p>}
     </div>
   );

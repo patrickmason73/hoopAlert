@@ -27,13 +27,10 @@ const Login = () => {
       }
   
       const data = await response.json();
-
-      console.log('Login response:', data)
-  
-      // Store only the token
-      login(data.jwt_token);  // Adjust to store just the token
-  
-      navigate('/profile');
+      console.log('Login response:', data);
+      
+      login(data.jwt_token);  // Use data.jwt_token since that's what the backend is returning
+      navigate('/profile'); // Redirect to the profile page
     } catch (err) {
       console.error('Login error:', err);
       setError(err.message);

@@ -1,4 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { UserContext } from '../context/UserContext';
 
 const SignUp = () => {
     const [formData, setFormData] = useState({
@@ -7,8 +9,8 @@ const SignUp = () => {
         email: '',
         phoneNumber: ''
     });
-    const [message, setMessage] = useState('');
-    const [errors, setErrors] = useState([]);
+    const navigate = useNavigate();
+    const { login } = useContext(UserContext);
 
     const handleChange = (e) => {
         setFormData({
@@ -19,8 +21,6 @@ const SignUp = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setErrors([]);
-        setMessage('');
 
         try {
             const response = await fetch('http://localhost:8080/create_account', {
@@ -31,17 +31,35 @@ const SignUp = () => {
                 body: JSON.stringify(formData)
             });
 
-            console.log(response);
-
             if (!response.ok) {
                 const errorData = await response.json();
-                setErrors(errorData);
+                alert(`Failed to create account: ${errorData.message || 'Unknown error'}`);
             } else {
-                const data = await response.json();
-                setMessage('Account created successfully! Your user ID is ' + data.appUserId);
+                alert('Account created successfully!');
+
+                // Automatically log the user in
+                const loginResponse = await fetch('http://localhost:8080/authenticate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        username: formData.username,
+                        password: formData.password
+                    })
+                });
+
+                if (loginResponse.ok) {
+                    const loginData = await loginResponse.json();
+                    login(loginData.jwt_token); // Use data.jwt_token
+                    navigate('/profile'); // Redirect to the profile page
+                } else {
+                    alert('Account created, but login failed. Please log in manually.');
+                }
             }
         } catch (error) {
-            setMessage('An unexpected error occurred.');
+            alert('An unexpected error occurred.');
+            console.error('Sign-up error:', error); // Log unexpected errors
         }
     };
 
@@ -72,7 +90,7 @@ const SignUp = () => {
                 <div>
                     <label>Email:</label>
                     <input
-                        type="text"
+                        type="email"
                         name="email"
                         value={formData.email}
                         onChange={handleChange}
@@ -91,17 +109,8 @@ const SignUp = () => {
                 </div>
                 <button type="submit">Sign Up</button>
             </form>
-            {errors.length > 0 && (
-                <ul>
-                    {errors.map((error, index) => (
-                        <li key={index} style={{ color: 'red' }}>{error}</li>
-                    ))}
-                </ul>
-            )}
-            {message && <p>{message}</p>}
         </div>
     );
 };
-
 
 export default SignUp;

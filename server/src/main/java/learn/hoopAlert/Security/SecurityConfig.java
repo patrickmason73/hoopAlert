@@ -45,6 +45,7 @@ public class SecurityConfig {
 
                 .antMatchers("/api/reminders/trigger/today").authenticated()
                 .antMatchers("/api/users/profile").authenticated()
+                .antMatchers(HttpMethod.PUT, "/api/users/{userId}").authenticated()  // Allow PUT for user profile updates
                 .antMatchers("/api/users/{userId}/teams/**",
                         "/api/reminders",
                         "/api/schedules/**",

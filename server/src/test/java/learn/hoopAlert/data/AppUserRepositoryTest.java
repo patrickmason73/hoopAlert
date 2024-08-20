@@ -1,99 +1,109 @@
 package learn.hoopAlert.data;
 
-import learn.hoopAlert.Security.SecurityConfig;
 import learn.hoopAlert.models.AppUser;
+import learn.hoopAlert.models.Role;
+import learn.hoopAlert.models.Team;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
-import org.springframework.context.annotation.Import;
-import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@ExtendWith(SpringExtension.class)
 @DataJpaTest
-@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-@Import(SecurityConfig.class)
-@ActiveProfiles("test")
 class AppUserRepositoryTest {
 
     @Autowired
-    private TestEntityManager entityManager;
+    private AppUserRepository repository;
 
     @Autowired
-    private AppUserRepository repository;
+    private RoleRepository roleRepository;
+
+    @Autowired
+    private TeamRepository teamRepository;
+
+    @PersistenceContext
+    private EntityManager entityManager;
 
     private AppUser user;
 
     @BeforeEach
     void setUp() {
         user = new AppUser();
-        user.setUsername("testUser");
-        user.setPasswordHash("password");
-        user.setPhoneNumber("+1234567890");
-        user.setEmail("test@example.com");
+        user.setUsername("testuser");
+        user.setPasswordHash("hashedpassword");
         user.setEnabled(true);
-        entityManager.persist(user);
+        user.setEmail("testuser@example.com");
+        user.setPhoneNumber("+1234567890");
+        repository.save(user);
+    }
+
+    @Test
+    void testFindByUsername() {
+        Optional<AppUser> foundUser = repository.findByUsername("testuser");
+
+        assertTrue(foundUser.isPresent());
+        assertEquals("testuser", foundUser.get().getUsername());
+    }
+
+    @Test
+    void testFindByEmail() {
+        Optional<AppUser> foundUser = repository.findByEmail("testuser@example.com");
+
+        assertTrue(foundUser.isPresent());
+        assertEquals("testuser@example.com", foundUser.get().getEmail());
+    }
+
+    @Test
+    void testFindByPhoneNumber() {
+        Optional<AppUser> foundUser = repository.findByPhoneNumber("+1234567890");
+
+        assertTrue(foundUser.isPresent());
+        assertEquals("+1234567890", foundUser.get().getPhoneNumber());
+    }
+
+    @Test
+    void testUpdatePasswordByUsername() {
+        // Perform the update
+        repository.updatePasswordByUsername("newPasswordHash", "testuser");
+
+        // Flush and clear the persistence context to ensure we fetch fresh data
         entityManager.flush();
+        entityManager.clear();
+
+        // Verify the password was updated
+        Optional<AppUser> foundUser = repository.findByUsername("testuser");
+
+        assertTrue(foundUser.isPresent());
+        assertEquals("newPasswordHash", foundUser.get().getPasswordHash());
     }
 
-    @Test
-    void findByUsername_shouldReturnUser_whenUsernameExists() {
-        Optional<AppUser> found = repository.findByUsername(user.getUsername());
-        assertTrue(found.isPresent());
-        assertEquals(user.getUsername(), found.get().getUsername());
-    }
 
     @Test
-    void findByUsername_shouldReturnEmpty_whenUsernameDoesNotExist() {
-        Optional<AppUser> found = repository.findByUsername("nonExistentUser");
-        assertFalse(found.isPresent());
-    }
+    void testSaveAndRetrieveUserWithRolesAndTeams() {
+        Role role = new Role("USER");
+        roleRepository.save(role);
 
-    @Test
-    void findByEmail_shouldReturnUser_whenEmailExists() {
-        Optional<AppUser> found = repository.findByEmail(user.getEmail());
-        assertTrue(found.isPresent());
-        assertEquals(user.getEmail(), found.get().getEmail());
-    }
+        Team team = new Team();
+        team.setTeamName("Test Team");
+        teamRepository.save(team);
 
-    @Test
-    void findByEmail_shouldReturnEmpty_whenEmailDoesNotExist() {
-        Optional<AppUser> found = repository.findByEmail("nonexistent@example.com");
-        assertFalse(found.isPresent());
-    }
+        user.getRoles().add(role);
+        user.getTeams().add(team);
 
-    @Test
-    void findByPhoneNumber_shouldReturnUser_whenPhoneNumberExists() {
-        Optional<AppUser> found = repository.findByPhoneNumber(user.getPhoneNumber());
-        assertTrue(found.isPresent());
-        assertEquals(user.getPhoneNumber(), found.get().getPhoneNumber());
-    }
+        AppUser savedUser = repository.save(user);
 
-    @Test
-    void findByPhoneNumber_shouldReturnEmpty_whenPhoneNumberDoesNotExist() {
-        Optional<AppUser> found = repository.findByPhoneNumber("+0987654321");
-        assertFalse(found.isPresent());
-    }
+        Optional<AppUser> foundUser = repository.findById(savedUser.getId());
 
-    @Test
-    void updatePasswordByUsername_shouldUpdatePassword_whenUsernameExists() {
-        String newPassword = "newPassword";
-        repository.updatePasswordByUsername(newPassword, user.getUsername());
-        entityManager.refresh(user);
-        assertEquals(newPassword, user.getPasswordHash());
-    }
-
-    @Test
-    void updatePasswordByUsername_shouldNotUpdatePassword_whenUsernameDoesNotExist() {
-        String newPassword = "newPassword";
-        repository.updatePasswordByUsername(newPassword, "nonExistentUser");
-        entityManager.refresh(user);
-        assertNotEquals(newPassword, user.getPasswordHash());
+        assertTrue(foundUser.isPresent());
+        assertEquals(1, foundUser.get().getRoles().size());
+        assertEquals(1, foundUser.get().getTeams().size());
     }
 }

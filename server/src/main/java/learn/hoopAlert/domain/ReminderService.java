@@ -50,6 +50,12 @@ public class ReminderService {
         for (Schedule game : upcomingGames) {
             // Use reminderTime instead of gameDate to check for existing reminders
             LocalDateTime reminderTime = game.getGameDate().minusHours(1);
+
+            // Skip if the game is in the past
+            if (reminderTime.isBefore(LocalDateTime.now())) {
+                continue;
+            }
+
             boolean reminderExists = reminderRepository.existsByUserAndTeamAndReminderTime(user, team, reminderTime);
 
             if (!reminderExists) {
@@ -93,7 +99,12 @@ public class ReminderService {
     }
 
     public void sendReminder(Reminder reminder, String message) {
-        SmsRequest smsRequest = new SmsRequest(reminder.getUser().getPhoneNumber(), message);
-        twilioService.sendSms(smsRequest);
+        try {
+            SmsRequest smsRequest = new SmsRequest(reminder.getUser().getPhoneNumber(), message);
+            twilioService.sendSms(smsRequest);
+        } catch (Exception e) {
+            logger.error("Failed to send SMS for reminder: " + reminder.getId(), e);
+            // Handle the exception accordingly (e.g., retry mechanism, set a flag, etc.)
+        }
     }
 }

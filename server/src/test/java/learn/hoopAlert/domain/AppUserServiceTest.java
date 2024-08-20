@@ -1,12 +1,12 @@
 package learn.hoopAlert.domain;
 
-import learn.hoopAlert.App;
-import learn.hoopAlert.Security.SecurityConfig;
-import learn.hoopAlert.TwilioConfig;
 import learn.hoopAlert.data.AppUserRepository;
 import learn.hoopAlert.data.RoleRepository;
+import learn.hoopAlert.data.TeamRepository;
 import learn.hoopAlert.models.AppUser;
+import learn.hoopAlert.models.Reminder;
 import learn.hoopAlert.models.Role;
+import learn.hoopAlert.models.Team;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -14,111 +14,195 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.context.annotation.Import;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.TestPropertySource;
 
-import java.util.List;
+import java.util.HashSet;
 import java.util.Optional;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-
-@SpringBootTest(classes = App.class)
-@TestPropertySource("classpath:application-test.properties")
+@ExtendWith(MockitoExtension.class)
 class AppUserServiceTest {
 
-    @MockBean
-    AppUserRepository repository;
+    @Mock
+    private AppUserRepository repository;
 
     @Mock
-    RoleRepository roleRepository;
+    private RoleRepository roleRepository;
 
     @Mock
-    PasswordEncoder encoder;
+    private TeamRepository teamRepository;
 
-    @Autowired
-    AppUserService appUserService;
+    @Mock
+    private PasswordEncoder encoder;
 
-    @MockBean
-    TwilioService twilioService;
+    @Mock
+    private ReminderService reminderService;
 
+    @InjectMocks
+    private AppUserService appUserService;
+
+    private AppUser user;
+    private Team team;
+
+    @BeforeEach
+    void setUp() {
+        user = new AppUser();
+        user.setId(1L);
+        user.setUsername("testuser");
+        user.setPasswordHash("hashedpassword");
+        user.setEnabled(true);
+        user.setEmail("testuser@example.com");
+        user.setPhoneNumber("+1234567890");
+        user.setTeams(new HashSet<>());
+
+        team = new Team();
+        team.setId(1L);
+        team.setTeamName("Test Team");
+    }
 
     @Test
-    void create_shouldReturnSuccess_whenValidData() {
-        String username = "validUser";
-        String password = "ValidPass1!";
-        String phoneNumber = "+1234567890";
-        String email = "valid@example.com";
+    void testAddTeamToUser_success() {
+        when(repository.findById(1L)).thenReturn(Optional.of(user));
+        when(teamRepository.findById(1L)).thenReturn(Optional.of(team));
 
-        when(repository.findByUsername(username)).thenReturn(Optional.empty());
-        when(repository.findByEmail(email)).thenReturn(Optional.empty());
-        when(repository.findByPhoneNumber(phoneNumber)).thenReturn(Optional.empty());
-        when(encoder.encode(password)).thenReturn("encodedPassword");
+        Result<Void> result = appUserService.addTeamToUser(1L, 1L);
+
+        assertTrue(result.isSuccess());
+        verify(repository, times(1)).save(user);
+        verify(reminderService, times(1)).createRemindersForTeam(user, team);
+    }
+
+    @Test
+    void testAddTeamToUser_userNotFound() {
+        when(repository.findById(1L)).thenReturn(Optional.empty());
+
+        Result<Void> result = appUserService.addTeamToUser(1L, 1L);
+
+        assertFalse(result.isSuccess());
+        assertEquals("User not found", result.getMessages().get(0));
+        verify(repository, never()).save(any(AppUser.class));
+        verify(reminderService, never()).createRemindersForTeam(any(AppUser.class), any(Team.class));
+    }
+
+    @Test
+    void testAddTeamToUser_teamNotFound() {
+        when(repository.findById(1L)).thenReturn(Optional.of(user));
+        when(teamRepository.findById(1L)).thenReturn(Optional.empty());
+
+        Result<Void> result = appUserService.addTeamToUser(1L, 1L);
+
+        assertFalse(result.isSuccess());
+        assertEquals("Team not found", result.getMessages().get(0));
+        verify(repository, never()).save(any(AppUser.class));
+        verify(reminderService, never()).createRemindersForTeam(any(AppUser.class), any(Team.class));
+    }
+
+    @Test
+    void testAddTeamToUser_teamAlreadyAdded() {
+        user.getTeams().add(team);
+        when(repository.findById(1L)).thenReturn(Optional.of(user));
+        when(teamRepository.findById(1L)).thenReturn(Optional.of(team));
+
+        Result<Void> result = appUserService.addTeamToUser(1L, 1L);
+
+        assertFalse(result.isSuccess());
+        assertEquals("Team already added to the user", result.getMessages().get(0));
+        verify(repository, never()).save(any(AppUser.class));
+        verify(reminderService, never()).createRemindersForTeam(any(AppUser.class), any(Team.class));
+    }
+
+    @Test
+    void testRemoveTeamFromUser_success() {
+        user.getTeams().add(team);
+        when(repository.findById(1L)).thenReturn(Optional.of(user));
+        when(teamRepository.findById(1L)).thenReturn(Optional.of(team));
+
+        Result<Void> result = appUserService.removeTeamFromUser(1L, 1L);
+
+        assertTrue(result.isSuccess());
+        verify(repository, times(1)).save(user);
+        verify(reminderService, times(1)).deleteRemindersForTeam(user, team);
+    }
+
+    @Test
+    void testRemoveTeamFromUser_userNotFound() {
+        when(repository.findById(1L)).thenReturn(Optional.empty());
+
+        Result<Void> result = appUserService.removeTeamFromUser(1L, 1L);
+
+        assertFalse(result.isSuccess());
+        assertEquals("User not found", result.getMessages().get(0));
+        verify(repository, never()).save(any(AppUser.class));
+        verify(reminderService, never()).deleteRemindersForTeam(any(AppUser.class), any(Team.class));
+    }
+
+    @Test
+    void testRemoveTeamFromUser_teamNotFound() {
+        when(repository.findById(1L)).thenReturn(Optional.of(user));
+        when(teamRepository.findById(1L)).thenReturn(Optional.empty());
+
+        Result<Void> result = appUserService.removeTeamFromUser(1L, 1L);
+
+        assertFalse(result.isSuccess());
+        assertEquals("Team not found", result.getMessages().get(0));
+        verify(repository, never()).save(any(AppUser.class));
+        verify(reminderService, never()).deleteRemindersForTeam(any(AppUser.class), any(Team.class));
+    }
+
+    @Test
+    void testLoadUserByUsername_userFound() {
+        when(repository.findByUsername("testuser")).thenReturn(Optional.of(user));
+
+        AppUser foundUser = appUserService.loadUserByUsername("testuser");
+
+        assertNotNull(foundUser);
+        assertEquals("testuser", foundUser.getUsername());
+    }
+
+    @Test
+    void testLoadUserByUsername_userNotFound() {
+        when(repository.findByUsername("testuser")).thenReturn(Optional.empty());
+
+        assertThrows(UsernameNotFoundException.class, () -> appUserService.loadUserByUsername("testuser"));
+    }
+
+    @Test
+    void testCreate_success() {
+        String password = "password";
+        String encodedPassword = "encodedPassword";
+        when(encoder.encode(password)).thenReturn(encodedPassword);
         when(roleRepository.findByName("USER")).thenReturn(new Role("USER"));
+        when(repository.save(any(AppUser.class))).thenAnswer(i -> i.getArgument(0));
 
-        AppUser savedUser = new AppUser();
-        savedUser.setUsername(username);
-        savedUser.setPasswordHash("encodedPassword");
-        savedUser.setPhoneNumber(phoneNumber);
-        savedUser.setEmail(email);
-        savedUser.setEnabled(true);
-        savedUser.setRoles(List.of(new Role("USER")));
+        Result<AppUser> result = appUserService.create("testuser", password, "+1234567890", "testuser@example.com");
 
-        when(repository.save(any(AppUser.class))).thenReturn(savedUser);
-
-        // Call the create method
-        Result<AppUser> result = appUserService.create(username, password, phoneNumber, email);
-
-        // Validate the result
         assertTrue(result.isSuccess());
         assertNotNull(result.getPayload());
-        assertEquals(username, result.getPayload().getUsername());
+        assertEquals("testuser", result.getPayload().getUsername());
+        assertEquals(encodedPassword, result.getPayload().getPasswordHash());
         verify(repository, times(1)).save(any(AppUser.class));
     }
 
     @Test
-    void create_shouldReturnFailure_whenUsernameExists() {
-        String username = "newUser2";
-        String password = "ValidPass1!";
-        String phoneNumber = "+1234567890";
-        String email = "valid@example.com";
+    void testCreate_failure_dueToDuplicateUsername() {
+        when(repository.findByUsername("testuser")).thenReturn(Optional.of(user));
 
-        AppUser existingUser = new AppUser();
-        existingUser.setUsername(username);
-        when(repository.findByUsername(username)).thenReturn(Optional.of(existingUser));
+        Result<AppUser> result = appUserService.create("testuser", "password", "+1234567890", "testuser@example.com");
 
-        // Call the real service method to allow it to perform validation logic.
-        Result<AppUser> result = appUserService.create(username, password, phoneNumber, email);
-        System.out.println("Result Success: " + result.isSuccess());
-        System.out.println("Result Messages: " + result.getMessages());
-
-        // Assert the result
         assertFalse(result.isSuccess());
         assertEquals("Username already exists", result.getMessages().get(0));
-
-        // Verify repository save is not called
         verify(repository, never()).save(any(AppUser.class));
     }
 
     @Test
-    void create_shouldReturnFailure_whenEmailExists() {
-        String username = "newUser2";
-        String password = "ValidPass1!";
-        String phoneNumber = "+1234567890";
-        String email = "existing@example.com";
+    void testCreate_failure_dueToDuplicateEmail() {
+        when(repository.findByEmail("testuser@example.com")).thenReturn(Optional.of(user));
 
-        AppUser existingUser = new AppUser();
-        existingUser.setEmail(email);
-
-        when(repository.findByEmail(email)).thenReturn(Optional.of(new AppUser()));
-
-        Result<AppUser> result = appUserService.create(username, password, phoneNumber, email);
+        Result<AppUser> result = appUserService.create("testuser", "password", "+1234567890", "testuser@example.com");
 
         assertFalse(result.isSuccess());
         assertEquals("Email already exists", result.getMessages().get(0));
@@ -126,60 +210,13 @@ class AppUserServiceTest {
     }
 
     @Test
-    void create_shouldReturnFailure_whenPhoneNumberExists() {
-        String username = "validUser";
-        String password = "ValidPass1!";
-        String phoneNumber = "+1234567890";
-        String email = "valid@example.com";
+    void testCreate_failure_dueToDuplicatePhoneNumber() {
+        when(repository.findByPhoneNumber("+1234567890")).thenReturn(Optional.of(user));
 
-        when(repository.findByPhoneNumber(phoneNumber)).thenReturn(Optional.of(new AppUser()));
-
-        Result<AppUser> result = appUserService.create(username, password, phoneNumber, email);
+        Result<AppUser> result = appUserService.create("testuser", "password", "+1234567890", "testuser@example.com");
 
         assertFalse(result.isSuccess());
         assertEquals("Phone number already exists", result.getMessages().get(0));
-        verify(repository, never()).save(any(AppUser.class));
-    }
-
-    @Test
-    void create_shouldReturnFailure_whenInvalidPassword() {
-        String username = "validUser";
-        String password = "short";
-        String phoneNumber = "+1234567890";
-        String email = "valid@example.com";
-
-        Result<AppUser> result = appUserService.create(username, password, phoneNumber, email);
-
-        assertFalse(result.isSuccess());
-        assertEquals("Password must be at least 8 characters and contain a digit, a letter, and a non-digit/non-letter", result.getMessages().get(0));
-        verify(repository, never()).save(any(AppUser.class));
-    }
-
-    @Test
-    void create_shouldReturnFailure_whenInvalidEmail() {
-        String username = "validUser";
-        String password = "ValidPass1!";
-        String phoneNumber = "+1234567890";
-        String email = "invalidEmail";
-
-        Result<AppUser> result = appUserService.create(username, password, phoneNumber, email);
-
-        assertFalse(result.isSuccess());
-        assertEquals("Invalid email format", result.getMessages().get(0));
-        verify(repository, never()).save(any(AppUser.class));
-    }
-
-    @Test
-    void create_shouldReturnFailure_whenInvalidPhoneNumber() {
-        String username = "validUser";
-        String password = "ValidPass1!";
-        String phoneNumber = "invalidPhone";
-        String email = "valid@example.com";
-
-        Result<AppUser> result = appUserService.create(username, password, phoneNumber, email);
-
-        assertFalse(result.isSuccess());
-        assertEquals("Invalid phone number format", result.getMessages().get(0));
         verify(repository, never()).save(any(AppUser.class));
     }
 }

@@ -1,5 +1,6 @@
 package learn.hoopAlert.domain;
 
+import learn.hoopAlert.Security.JwtService;
 import learn.hoopAlert.data.AppUserRepository;
 import learn.hoopAlert.data.RoleRepository;
 import learn.hoopAlert.data.TeamRepository;
@@ -9,6 +10,10 @@ import learn.hoopAlert.models.Role;
 import learn.hoopAlert.models.Schedule;
 import learn.hoopAlert.models.Team;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -28,19 +33,23 @@ public class AppUserService implements UserDetailsService {
     private final PasswordEncoder encoder;
     private final TeamRepository teamRepository;
     private final ReminderService reminderService;
+    private final JwtService jwtService;  // Inject JwtService
 
     @Autowired
     public AppUserService(AppUserRepository repository,
                           RoleRepository roleRepository,
                           PasswordEncoder encoder,
                           TeamRepository teamRepository,
-                          ReminderService reminderService) {
+                          ReminderService reminderService,
+                          @Lazy JwtService jwtService) {  // Add JwtService to constructor
         this.repository = repository;
         this.roleRepository = roleRepository;
         this.encoder = encoder;
         this.teamRepository = teamRepository;
         this.reminderService = reminderService;
+        this.jwtService = jwtService;  // Assign JwtService
     }
+
 
     public Set<Team> getTeamsForUser(Long userId) {
         Optional<AppUser> user = repository.findById(userId);
@@ -68,6 +77,11 @@ public class AppUserService implements UserDetailsService {
 
         AppUser user = userOpt.get();
         Team team = teamOpt.get();
+
+        if (user.getTeams().contains(team)) {
+            result.addMessage(ActionStatus.INVALID, "Team already added to the user");
+            return result;
+        }
 
         // Add the team to the user's list of teams
         user.getTeams().add(team);
@@ -115,7 +129,10 @@ public class AppUserService implements UserDetailsService {
             throw new UsernameNotFoundException(username + " not found");
         }
 
-        return appUser.get();
+        AppUser user = appUser.get();
+        System.out.println("Loaded user: " + user.getUsername() + ", Password Hash: " + user.getPasswordHash());
+
+        return user;
     }
 
     public Optional<AppUser> findById(Long userId) {
@@ -170,10 +187,35 @@ public class AppUserService implements UserDetailsService {
     public AppUser updateUser(Long userId, AppUser updatedUser) {
         return repository.findById(userId)
                 .map(user -> {
-                    user.setUsername(updatedUser.getUsername());
-                    user.setPhoneNumber(updatedUser.getPhoneNumber());
-                    user.setEmail(updatedUser.getEmail());
-                    return repository.save(user);
+                    boolean usernameChanged = false;
+
+                    if (updatedUser.getUsername() != null) {
+                        user.setUsername(updatedUser.getUsername());
+                        usernameChanged = true;
+                    }
+                    if (updatedUser.getPhoneNumber() != null) {
+                        user.setPhoneNumber(updatedUser.getPhoneNumber());
+                    }
+                    if (updatedUser.getEmail() != null) {
+                        user.setEmail(updatedUser.getEmail());
+                    }
+                    if (updatedUser.getPasswordHash() != null && !updatedUser.getPasswordHash().equals(user.getPasswordHash())) {
+                        // Ensure that we only encode the password if it's not already encoded
+                        if (!encoder.matches(updatedUser.getPasswordHash(), user.getPasswordHash())) {
+                            user.setPasswordHash(encoder.encode(updatedUser.getPasswordHash()));
+                        }
+                    }
+                    if (updatedUser.getTimezone() != null) {
+                        user.setTimezone(updatedUser.getTimezone());
+                    }
+                    AppUser savedUser = repository.save(user);
+
+                    if (usernameChanged) {
+                        String newJwt = jwtService.getTokenFromUser(savedUser);
+                        // Handle the new JWT as needed
+                    }
+
+                    return savedUser;
                 }).orElseThrow(() -> new RuntimeException("User not found"));
     }
 

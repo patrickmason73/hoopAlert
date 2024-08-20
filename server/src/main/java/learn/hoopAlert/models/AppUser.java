@@ -1,5 +1,7 @@
 package learn.hoopAlert.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -11,6 +13,8 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 @Entity
 @Table(name = "users")
+@JsonIgnoreProperties(value = {"reminders"}, allowSetters = true) // Ignore reminders during serialization
+
 public class AppUser implements UserDetails {
 
     @Id
@@ -33,6 +37,7 @@ public class AppUser implements UserDetails {
     private String phoneNumber;
 
     @OneToMany(mappedBy = "user")
+    @JsonIgnore
     private Set<Reminder> reminders;
 
     @ManyToMany(fetch = FetchType.EAGER)
@@ -41,12 +46,14 @@ public class AppUser implements UserDetails {
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id")
     )
+    @JsonIgnore
     private List<Role> roles = new ArrayList<>();
 
     @ManyToMany
     @JoinTable(name = "user_team",
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "team_id"))
+    @JsonIgnore
     @JsonManagedReference
     private Set<Team> teams = new HashSet<>();
 
@@ -64,6 +71,17 @@ public class AppUser implements UserDetails {
 
     public <T> AppUser(int appUserId, String username, Object o, boolean b, List<T> list) {
 
+    }
+
+    private String timezone;
+
+    // Getter and Setter
+    public String getTimezone() {
+        return timezone;
+    }
+
+    public void setTimezone(String timezone) {
+        this.timezone = timezone;
     }
 
     // Getters and Setters
@@ -132,6 +150,7 @@ public class AppUser implements UserDetails {
     }
 
     @Override
+    @JsonIgnore
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return roles.stream()
                 .map(role -> new SimpleGrantedAuthority(role.getName()))
