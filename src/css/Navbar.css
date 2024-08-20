@@ -1,0 +1,117 @@
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 220px;
+    height: 100%;
+    background-color: #1e3a8a; /* Dark blue for background */
+    color: white;
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+    border-right: 3px solid #1a237e; /* Slightly darker blue border */
+    z-index: 2; /* Ensure it is above the background image */
+}
+
+.navbar-logo {
+    margin-bottom: 20px;
+    font-size: 1.5rem;
+    font-weight: bold;
+    text-align: center;
+}
+
+.navbar-brand {
+    color: #ffffff;
+    text-decoration: none;
+}
+
+.navbar-logo-animation {
+    width: 150px;  /* Increase size */
+    height: 150px; /* Increase size */
+    margin: 10px auto;
+    background: url('https://www.hatchwise.com/wp-content/uploads/2024/04/image-4.png') no-repeat center center;
+    background-size: contain;
+    animation: rotateY 10s linear infinite;
+    transform-style: preserve-3d;
+}
+
+.navbar-links {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+
+.navbar-links li {
+    margin-bottom: 15px;
+}
+
+.navbar-links a, .navbar-logout {
+    color: #ffffff !important; /* White text for better readability */
+    background-color: #283593; /* Lighter shade of blue */
+    border-radius: 5px;
+    padding: 10px;
+    display: block;
+    text-align: center;
+}
+
+
+.navbar-logout {
+    background: none;
+    border: none;
+    font-size: 1.1rem;
+    cursor: pointer;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.navbar-links a:hover, .navbar-logout:hover {
+    background-color: #3949ab; /* Slightly darker on hover */
+}
+
+.navbar-logout {
+    background-color: #e53935; 
+
+}
+
+.navbar-logout:hover {
+    background-color: #c62828; /* Darker red on hover */
+}
+
+/* Add this animation to the Navbar.css */
+@keyframes rotateY {
+    from { transform: rotateY(0deg); }
+    to { transform: rotateY(360deg); }
+}
+
+/* Media Queries for responsiveness */
+@media (max-width: 768px) {
+    .sidebar {
+        width: 100%; /* Make sidebar full width on smaller screens */
+        height: auto;
+        border-right: none;
+        border-bottom: 3px solid #1a237e; /* Border at the bottom instead of the right */
+        padding-bottom: 10px;
+    }
+
+    .navbar-logo-animation {
+        width: 50px;
+        height: 50px;
+    }
+
+    .navbar-brand {
+        font-size: 1.5rem;
+    }
+
+    .navbar-links {
+        flex-direction: row;
+        gap: 10px;
+        align-items: center;
+        width: 100%;
+        justify-content: space-around;
+    }
+
+    .navbar-links a, .navbar-logout {
+        font-size: 1rem;
+    }
+}

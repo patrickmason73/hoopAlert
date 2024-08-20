@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import '../css/TeamStats.css';
 
 const TeamStats = () => {
     const [teams, setTeams] = useState([]);
@@ -120,14 +121,13 @@ const TeamStats = () => {
         };
     };
 
-
     return (
-        <div>
-            <h2>Team Stats</h2>
-            <div>
+        <div className="team-stats-container">
+            <h2 className="team-stats-title">Team Stats</h2>
+            <div className="team-stats-selection">
                 <label>
                     Select Team:
-                    <select value={selectedTeam} onChange={handleTeamChange}>
+                    <select value={selectedTeam} onChange={handleTeamChange} className="team-stats-select">
                         <option value="">-- Select a Team --</option>
                         {teams.map(team => (
                             <option key={team.id} value={team.nbaTeamId}>
@@ -137,10 +137,10 @@ const TeamStats = () => {
                     </select>
                 </label>
             </div>
-            <div>
+            <div className="team-stats-selection">
                 <label>
                     Select Season:
-                    <select value={season} onChange={handleSeasonChange}>
+                    <select value={season} onChange={handleSeasonChange} className="team-stats-select">
                         <option value="">-- Select a Season --</option>
                         {Array.from({ length: 75 }, (_, index) => {
                             const year = 2023 - index;
@@ -153,13 +153,13 @@ const TeamStats = () => {
                     </select>
                 </label>
             </div>
-            <button onClick={fetchStats} disabled={loading}>
+            <button onClick={fetchStats} disabled={loading} className="fetch-stats-button">
                 {loading ? 'Fetching Stats...' : 'Fetch Stats'}
             </button>
-            {error && <p>{error}</p>}
-            <div>
+            {error && <p className="error-message">{error}</p>}
+            <div className="stats-display">
                 {stats ? (
-                    <div>
+                    <div className="stats-data">
                         <h3>{stats.teamName} ({stats.city})</h3>
                         <p>Conference: {stats.conference} ({stats.conferenceRank})</p>
                         <p>Division: {stats.division} ({stats.divisionRank})</p>
@@ -172,7 +172,7 @@ const TeamStats = () => {
                         <p>Point Differential: {stats.pointDifferential}</p>
                     </div>
                 ) : (
-                    !loading && <p>Please select a team and season to view stats.</p>
+                    !loading && <p className="no-stats-message">Please select a team and season to view stats.</p>
                 )}
             </div>
         </div>

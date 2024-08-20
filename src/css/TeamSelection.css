@@ -1,0 +1,68 @@
+.team-selection {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #e0e0e0; /* Slightly darker grey for contrast */
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+h2 {
+    text-align: center;
+    color: #1e3a8a;
+    margin-bottom: 40px; /* More space below the title */
+}
+
+.team-checkboxes {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px; /* Increase gap for better spacing */
+    margin-bottom: 30px;
+}
+
+.team-checkbox {
+    background-color: #f9f9f9; /* Slightly darker background for the checkbox items */
+    padding: 15px;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.team-checkbox:hover {
+    background-color: #f1f1f1;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15); /* More pronounced shadow on hover */
+}
+
+.team-checkbox input {
+    margin-right: 10px;
+}
+
+.team-checkbox label {
+    color: #1e3a8a;
+    cursor: pointer;
+}
+
+.back-to-profile-button {
+    display: block;
+    width: 100%;
+    padding: 15px; /* Increase padding for a bigger button */
+    background-color: #283593;
+    color: #ffffff;
+    border: none;
+    border-radius: 5px;
+    font-size: 1.2rem;
+    cursor: pointer;
+    text-align: center;
+    transition: background-color 0.3s ease;
+}
+
+.back-to-profile-button:hover {
+    background-color: #3949ab;
+}
+
+/* Responsive design for smaller screens */
+@media (max-width: 600px) {
+    .team-checkboxes {
+        grid-template-columns: 1fr;
+    }
+}

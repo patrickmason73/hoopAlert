@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { UserContext } from '../context/UserContext';
+import '../css/TeamSelection.css'; // Add this line to import the new CSS file
 
 const TeamSelection = () => {
   const { token } = useContext(UserContext);
@@ -88,20 +89,24 @@ const TeamSelection = () => {
   return (
     <div className="team-selection">
       <h2>Select Teams for Reminders</h2>
-      {teams.map((team) => (
-        <div key={team.id} className="team-checkbox">
-          <input
-            type="checkbox"
-            id={`team-${team.id}`}
-            checked={userTeams.includes(team.id)}
-            onChange={(e) => handleCheckboxChange(team.id, e.target.checked)}
-          />
-          <label htmlFor={`team-${team.id}`}>
-            {team.teamName} ({team.teamAbbreviation})
-          </label>
-        </div>
-      ))}
-      <button onClick={() => navigate('/profile')}>Back to Profile</button>
+      <div className="team-checkboxes">
+        {teams.map((team) => (
+          <div key={team.id} className="team-checkbox">
+            <input
+              type="checkbox"
+              id={`team-${team.id}`}
+              checked={userTeams.includes(team.id)}
+              onChange={(e) => handleCheckboxChange(team.id, e.target.checked)}
+            />
+            <label htmlFor={`team-${team.id}`}>
+              {team.teamName} ({team.teamAbbreviation})
+            </label>
+          </div>
+        ))}
+      </div>
+      <button className="back-to-profile-button" onClick={() => navigate('/profile')}>
+        Back to Profile
+      </button>
     </div>
   );
 };

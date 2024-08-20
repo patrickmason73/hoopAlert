@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { UserContext } from '../context/UserContext';
+import '../css/Profile.css';
 
 const Profile = () => {
   const { token } = useContext(UserContext);
@@ -11,11 +12,10 @@ const Profile = () => {
   });
   const [userTeams, setUserTeams] = useState([]);
   const [error, setError] = useState(null);
-  const [triggerMessage, setTriggerMessage] = useState(''); // New state for trigger message
-  const [updateMessage, setUpdateMessage] = useState(''); // State to show success/error messages for updates
-  const [isEditing, setIsEditing] = useState(false); // State to toggle edit form visibility
-  const [editData, setEditData] = useState({ ...userData }); // Separate state for form input
-
+  const [triggerMessage, setTriggerMessage] = useState('');
+  const [updateMessage, setUpdateMessage] = useState('');
+  const [isEditing, setIsEditing] = useState(false);
+  const [editData, setEditData] = useState({ ...userData });
 
   const navigate = useNavigate();
 
@@ -37,7 +37,6 @@ const Profile = () => {
         const data = await response.json();
         setUserData(data);
 
-        // Fetch teams associated with the user
         const teamsResponse = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/users/${data.id}/teams`, {
           method: 'GET',
           headers: {
@@ -57,9 +56,6 @@ const Profile = () => {
         setError(err.message);
       }
     };
-
-    console.log('Token in Profile:', token);
-
 
     if (token) {
       fetchUserData();
@@ -109,9 +105,9 @@ const Profile = () => {
       }
 
       const updatedUser = await response.json();
-      setUserData(updatedUser); // Update main state after successful update
+      setUserData(updatedUser);
       setUpdateMessage('Profile updated successfully!');
-      setIsEditing(false); // Hide the form after successful update
+      setIsEditing(false);
     } catch (err) {
       setError(err.message);
       setUpdateMessage('Failed to update profile.');
@@ -121,28 +117,29 @@ const Profile = () => {
   const toggleEditForm = () => {
     setIsEditing(!isEditing);
     if (!isEditing) {
-      setEditData(userData); // Reset edit form data when opening the form
+      setEditData(userData);
     }
   };
 
-
-  if (error) return <p style={{ color: 'red' }}>{error}</p>;
+  if (error) return <p className="error-message">{error}</p>;
   if (!userData) return <p>Loading...</p>;
 
   return (
-    <div className="profile">
-      <h2>Profile</h2>
-      <p>Username: {userData.username}</p>
-      <p>Phone: {userData.phoneNumber}</p>
-      <p>Email: {userData.email}</p>
+    <div className="profile-container">
+      <h2 className="profile-title">Profile</h2>
+      <div className="profile-info">
+        <p><strong>Username:</strong> {userData.username}</p>
+        <p><strong>Phone:</strong> {userData.phoneNumber}</p>
+        <p><strong>Email:</strong> {userData.email}</p>
+      </div>
 
-      <button onClick={toggleEditForm}>
+      <button onClick={toggleEditForm} className="profile-button">
         {isEditing ? 'Cancel Edit' : 'Edit Profile'}
       </button>
 
       {isEditing && (
-        <form onSubmit={handleFormSubmit}>
-          <div>
+        <form onSubmit={handleFormSubmit} className="edit-form">
+          <div className="form-group">
             <label htmlFor="username">Username:</label>
             <input
               type="text"
@@ -153,7 +150,7 @@ const Profile = () => {
               required
             />
           </div>
-          <div>
+          <div className="form-group">
             <label htmlFor="phoneNumber">Phone:</label>
             <input
               type="text"
@@ -164,7 +161,7 @@ const Profile = () => {
               required
             />
           </div>
-          <div>
+          <div className="form-group">
             <label htmlFor="email">Email:</label>
             <input
               type="email"
@@ -175,28 +172,28 @@ const Profile = () => {
               required
             />
           </div>
-          <button type="submit">Update Profile</button>
+          <button type="submit" className="profile-button">Update Profile</button>
         </form>
       )}
 
-      {updateMessage && <p>{updateMessage}</p>}
+      {updateMessage && <p className="success-message">{updateMessage}</p>}
 
       <h3>Your Teams:</h3>
-      <ul>
+      <ul className="teams-list">
         {userTeams.map((team) => (
-          <li key={team.id}>{team.teamName}</li>
+          <li key={team.id} className="team-item">{team.teamName}</li>
         ))}
       </ul>
 
-      <button onClick={() => navigate('/team-selection')}>
+      <button onClick={() => navigate('/team-selection')} className="profile-button">
         Select More Teams
       </button>
 
-      <button onClick={triggerRemindersForToday}>
+      <button onClick={triggerRemindersForToday} className="profile-button">
         Trigger Today's Reminders
       </button>
 
-      {triggerMessage && <p>{triggerMessage}</p>}
+      {triggerMessage && <p className="success-message">{triggerMessage}</p>}
     </div>
   );
 };

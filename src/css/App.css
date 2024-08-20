@@ -1,0 +1,21 @@
+.app-layout {
+    display: flex;
+    min-height: 100vh;
+}
+
+/* Main content area */
+.main-content {
+    margin-left: 220px; /* Make room for the sidebar */
+    padding: 20px;
+    width: 100%;
+    background-color: #e8eaf6; /* Light blue-gray background */
+    color: #333333; /* Dark gray text */
+    box-sizing: border-box;
+}
+
+/* Ensure images scale with their containers */
+img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+}
