@@ -27,13 +27,14 @@
 }
 
 .navbar-logo-animation {
-    width: 150px;  /* Increase size */
-    height: 150px; /* Increase size */
+    width: 175px;  /* Increase size */
+    height: 175px; /* Increase size */
     margin: 10px auto;
     background: url('https://www.hatchwise.com/wp-content/uploads/2024/04/image-4.png') no-repeat center center;
     background-size: contain;
     animation: rotateY 10s linear infinite;
     transform-style: preserve-3d;
+    cursor: pointer;
 }
 
 .navbar-links {
@@ -70,7 +71,7 @@
 }
 
 .navbar-logout {
-    background-color: #e53935; 
+    background-color: #b82b28; 
 
 }
 

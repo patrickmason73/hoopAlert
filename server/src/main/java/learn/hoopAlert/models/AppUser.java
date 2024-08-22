@@ -73,16 +73,8 @@ public class AppUser implements UserDetails {
 
     }
 
-    private String timezone;
 
     // Getter and Setter
-    public String getTimezone() {
-        return timezone;
-    }
-
-    public void setTimezone(String timezone) {
-        this.timezone = timezone;
-    }
 
     // Getters and Setters
     public Long getId() {

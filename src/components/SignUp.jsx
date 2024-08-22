@@ -1,6 +1,7 @@
 import React, { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { UserContext } from '../context/UserContext';
+import '../css/SignUp.css';
 
 const SignUp = () => {
     const [formData, setFormData] = useState({
@@ -33,7 +34,8 @@ const SignUp = () => {
 
             if (!response.ok) {
                 const errorData = await response.json();
-                alert(`Failed to create account: ${errorData.message || 'Unknown error'}`);
+                console.error('Full error response:', errorData); // Log the full error response
+                alert(`Failed to create account: ${errorData.messages.join(', ') || 'Unknown error'}`);
             } else {
                 alert('Account created successfully!');
 
@@ -64,52 +66,56 @@ const SignUp = () => {
     };
 
     return (
-        <div>
-            <h2>Sign Up</h2>
-            <form onSubmit={handleSubmit}>
-                <div>
-                    <label>Username:</label>
-                    <input
-                        type="text"
-                        name="username"
-                        value={formData.username}
-                        onChange={handleChange}
-                        required
-                    />
-                </div>
-                <div>
-                    <label>Password:</label>
-                    <input
-                        type="password"
-                        name="password"
-                        value={formData.password}
-                        onChange={handleChange}
-                        required
-                    />
-                </div>
-                <div>
-                    <label>Email:</label>
-                    <input
-                        type="email"
-                        name="email"
-                        value={formData.email}
-                        onChange={handleChange}
-                        required
-                    />
-                </div>
-                <div>
-                    <label>Phone Number:</label>
-                    <input
-                        type="text"
-                        name="phoneNumber"
-                        value={formData.phoneNumber}
-                        onChange={handleChange}
-                        required
-                    />
-                </div>
-                <button type="submit">Sign Up</button>
-            </form>
+        <div className="signup-container">
+      <h2 className="signup-title">Sign Up</h2>
+      <form onSubmit={handleSubmit}>
+        <div className="signup-form-group">
+          <label className="signup-form-label">Username:</label>
+          <input
+            type="text"
+            name="username"
+            value={formData.username}
+            onChange={handleChange}
+            required
+            className="signup-form-input"
+          />
         </div>
+        <div className="signup-form-group">
+          <label className="signup-form-label">Password:</label>
+          <input
+            type="password"
+            name="password"
+            value={formData.password}
+            onChange={handleChange}
+            required
+            className="signup-form-input"
+          />
+        </div>
+        <div className="signup-form-group">
+          <label className="signup-form-label">Email:</label>
+          <input
+            type="email"
+            name="email"
+            value={formData.email}
+            onChange={handleChange}
+            required
+            className="signup-form-input"
+          />
+        </div>
+        <div className="signup-form-group">
+          <label className="signup-form-label">Phone Number:</label>
+          <input
+            type="text"
+            name="phoneNumber"
+            value={formData.phoneNumber}
+            onChange={handleChange}
+            required
+            className="signup-form-input"
+          />
+        </div>
+        <button type="submit" className="signup-button">Sign Up</button>
+      </form>
+    </div>
     );
 };
 

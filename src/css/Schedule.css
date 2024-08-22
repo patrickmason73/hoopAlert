@@ -1,0 +1,87 @@
+.schedule-container {
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    background-color: #1c2f86; /* Dark Blue */
+    color: #ffffff; /* White */
+    border-radius: 15px;
+}
+
+.schedule-container h1 {
+    font-size: 2rem; /* Even larger font size */
+    font-weight: 900; /* Maximum font weight for boldness */
+    color: #E63946; /* Red */
+    margin-bottom: 20px;
+    text-align: center;
+    line-height: 1.2; /* Adjust line height for better spacing */
+    text-shadow: black 2px 2px 2px; /* Add a shadow to the text */
+}
+
+.home-description i {
+    margin-right: 10px; /* Add space between the icon and the text */
+    color: #1976D2; /* Match the icon color with the text */
+    font-size: 1.8rem; /* Slightly larger icon size */
+}
+
+.game-item {
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    border-bottom: 1px solid #3e5b91; /* Slightly lighter dark blue */
+}
+
+.game-date {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-right: 40px;
+    color: #E0E1DD; /* Light Gray */
+}
+
+.teams-container {
+    flex: 3;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.teams {
+    display: flex;
+    justify-content: space-between;
+    width: 100%; /* Make teams take up full width of container */
+    align-items: center;
+}
+
+.team {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.team img {
+    width: 40px;
+    height: 40px;
+}
+
+.vs {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    font-weight: bold;
+    font-size: 18px;
+    color: #E63946; /* Red */
+    white-space: nowrap;
+    text-shadow: black 1px 1px 1px; /* Add a shadow to the text */
+
+}
+
+.location {
+    flex: 1;
+    padding-left: 40px;
+    text-align: right;
+    color: #A8DADC; /* Light Blue */
+}

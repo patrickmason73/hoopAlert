@@ -1,6 +1,7 @@
 import React, { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { UserContext } from "../context/UserContext";
+import '../css/Login.css';
 
 const Login = () => {
   const [username, setUsername] = useState('');
@@ -23,7 +24,8 @@ const Login = () => {
   
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.message || 'Login failed');
+        setError(errorData.message || 'Login failed');
+        return;
       }
   
       const data = await response.json();
@@ -38,21 +40,33 @@ const Login = () => {
   };
 
   return (
-    <div>
-      <h2>Login</h2>
-      <form onSubmit={handleLogin}>
-        <div>
-          <label>Username</label>
-          <input type="text" value={username} onChange={(e) => setUsername(e.target.value)} required />
-        </div>
-        <div>
-          <label>Password</label>
-          <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
-        </div>
-        <button type="submit">Login</button>
-        {error && <p style={{ color: 'red' }}>{error}</p>}
-      </form>
-    </div>
+    <div className="login-container">
+    <h2 className="login-title">Login</h2>
+    <form onSubmit={handleLogin}>
+      <div className="login-form-group">
+        <label className="login-form-label">Username</label>
+        <input
+          type="text"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+          required
+          className="login-form-input"
+        />
+      </div>
+      <div className="login-form-group">
+        <label className="login-form-label">Password</label>
+        <input
+          type="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+          className="login-form-input"
+        />
+      </div>
+      <button type="submit" className="login-button">Login</button>
+      {error && <p className="error-message">{error}</p>}
+    </form>
+  </div>
   );
 };
 

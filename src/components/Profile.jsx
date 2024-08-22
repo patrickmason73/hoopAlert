@@ -4,7 +4,7 @@ import { UserContext } from '../context/UserContext';
 import '../css/Profile.css';
 
 const Profile = () => {
-  const { token } = useContext(UserContext);
+  const { token, logout } = useContext(UserContext);
   const [userData, setUserData] = useState({
     username: '',
     phoneNumber: '',
@@ -107,6 +107,8 @@ const Profile = () => {
       const updatedUser = await response.json();
       setUserData(updatedUser);
       setUpdateMessage('Profile updated successfully!');
+      logout();  // Clear token from context and local storage
+      navigate('/login');
       setIsEditing(false);
     } catch (err) {
       setError(err.message);

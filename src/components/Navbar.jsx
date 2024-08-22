@@ -7,11 +7,14 @@ const Navbar = ({ isAuthenticated, onLogout }) => {
     <nav className="sidebar">
       <div className="navbar-logo">
         <Link to="/" className="navbar-brand">HoopAlert</Link>
-        <div className="navbar-logo-animation"></div>
+        <Link to="/">
+          <div className="navbar-logo-animation"></div>
+        </Link>
       </div>
       <ul className="navbar-links">
         <li><Link to="/">Home</Link></li>
         <li><Link to="/team-stats">Team Stats</Link></li>
+        <li><Link to="/schedule">Schedule</Link></li>
 
         {isAuthenticated ? (
           <>

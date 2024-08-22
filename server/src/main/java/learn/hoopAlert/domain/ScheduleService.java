@@ -27,6 +27,10 @@ public class ScheduleService {
         return scheduleRepository.findByHomeTeamIdOrAwayTeamId(teamId, teamId);
     }
 
+    public List<Schedule> getAllScheduledGames() {
+        return scheduleRepository.findAll();
+    }
+
     public List<Schedule> getGamesOnDate(LocalDate date) {
         LocalDateTime startOfDay = date.atStartOfDay();
         LocalDateTime endOfDay = startOfDay.plusDays(1).minusSeconds(1);

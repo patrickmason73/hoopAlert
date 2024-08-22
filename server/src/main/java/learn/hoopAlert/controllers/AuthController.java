@@ -55,9 +55,13 @@ public class AuthController {
 
         } catch (AuthenticationException ex) {
             System.out.println(ex);
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("message", "Invalid username or password");
+            return new ResponseEntity<>(errorResponse, HttpStatus.FORBIDDEN);
         }
-
-        return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        Map<String, String> errorResponse = new HashMap<>();
+        errorResponse.put("message", "Authentication failed");
+        return new ResponseEntity<>(errorResponse, HttpStatus.FORBIDDEN);
     }
 
     @PostMapping("/refresh_token")
@@ -83,7 +87,13 @@ public class AuthController {
 
         // unhappy path...
         if (!result.isSuccess()) {
-            return new ResponseEntity<>(result.getMessages(), HttpStatus.BAD_REQUEST);
+            // Return a structured error response
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("status", HttpStatus.BAD_REQUEST.value());
+            errorResponse.put("error", "Account creation failed");
+            errorResponse.put("messages", result.getMessages());
+
+            return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
         }
 
         AppUser newUser = result.getPayload();

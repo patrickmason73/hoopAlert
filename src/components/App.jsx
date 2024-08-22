@@ -9,6 +9,7 @@ import Profile from './Profile';
 import TeamSelection from './TeamSelection';
 import TeamStats from './TeamStats';
 import '../css/App.css';
+import Schedule from './Schedule';
 
 const App = () => {
   const { token, logout } = useContext(UserContext);
@@ -24,6 +25,7 @@ const App = () => {
             <Route path="/profile" element={token ? <Profile /> : <Login />} />
             <Route path="/team-selection" element={token ? <TeamSelection /> : <Login />} />
             <Route path="/login" element={<Login />} />
+            <Route path="/schedule" element={<Schedule />} />
             <Route path="/team-stats" element={<TeamStats />} />
           </Routes>
         </div>

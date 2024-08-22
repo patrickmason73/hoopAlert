@@ -205,9 +205,6 @@ public class AppUserService implements UserDetailsService {
                             user.setPasswordHash(encoder.encode(updatedUser.getPasswordHash()));
                         }
                     }
-                    if (updatedUser.getTimezone() != null) {
-                        user.setTimezone(updatedUser.getTimezone());
-                    }
                     AppUser savedUser = repository.save(user);
 
                     if (usernameChanged) {

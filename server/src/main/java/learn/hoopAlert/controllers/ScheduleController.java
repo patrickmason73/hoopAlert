@@ -34,5 +34,10 @@ public class ScheduleController {
         scheduleService.saveSchedule(schedule);
     }
 
+    @GetMapping("/all")
+    public List<Schedule> getAllScheduledGames() {
+        return scheduleService.getAllScheduledGames();
+    }
+
 
 }

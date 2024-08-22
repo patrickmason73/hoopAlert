@@ -37,7 +37,9 @@ public class SecurityConfig {
                         "/api/sms/send",
                         "/authenticate",
                         "/create_account",
-                        "/api/proxy/**").permitAll()
+                        "/api/proxy/**",
+                        "/api/schedule/date/**",
+                        "/api/schedule/all").permitAll()
 
 
                 // Public or test-specific endpoints

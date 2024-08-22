@@ -1,5 +1,5 @@
 .home-container {
-    min-height: 200vh; /* Allow scrolling */
+    min-height: 230vh; /* Allow scrolling */
     position: relative;
 }
 
@@ -14,6 +14,7 @@
     background-position: center;
     opacity: 0.1; /* Start faded */
     transition: opacity 1s ease-in-out;
+    z-index: 0;
 }
 
 /* Full opacity when user scrolls to the bottom */
@@ -22,56 +23,231 @@
 }
 
 .content {
-    z-index: 1;
+    z-index: 2;
+    position: relative;
     padding: 50px 20px;
     text-align: center;
+    transition: opacity 1s ease-in-out;
+}
+
+.content.scrolled, .games-today.scrolled {
+    opacity: 0;
 }
 
 .home-title {
     font-size: 3rem;
     color: #E53935; /* Red shade */
     margin-bottom: 20px;
-    border-bottom: 3px solid #E53935; /* Red bottom border */
+     /* Red bottom border */
+    padding: 0 20px; /* Add padding to reduce the width of the border */
+    display: inline-block;
+     /* Add a shadow to the text */
+    line-height: 1.3;
+    font-weight: 900;
+}
+
+
+
+.gif-wrapper {
+    position: relative;
+    display: inline-block;
+  }
+  
+  .home-title .gif {
+    width: 200px;
+    height: auto;
+    display: block;
+  }
+  
+  .gif-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 255, 0.5); /* Change this color */
+    pointer-events: none; /* Allows clicking through the overlay */
+  }
+
+.small-logo {
+    width: 30%;
+    background-size: contain;
+    background-repeat: no-repeat;
+    margin: 0 5px;
+    opacity: 0.9;
+}
+
+.home-description-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 7%; /* Space between the two boxes */
+    margin: 0 auto;
+    max-width: 90%; /* Adjust as needed */
+    text-align: center;
 }
 
 .home-description {
-    font-size: 1.5rem;
+    font-size: 1.25rem; /* Adjusted font size */
     color: #1976D2; /* Blue shade */
-    max-width: 600px;
-    margin: 0 auto;
+    max-width: 300px; /* Adjusted max-width */
     border: 2px solid #1976D2; /* Blue border */
-    padding: 10px;
+    padding: 15px; /* Adjusted padding */
     background-color: rgba(255, 255, 255, 0.8); /* Add background for readability */
+    line-height: 1.4; /* Adjusted line-height */
+    text-align: center; /* Center the text */
+    cursor: pointer; /* Add pointer cursor to indicate it's clickable */
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    flex: 1; /* Make sure the boxes are of equal width */
+    font-weight: bold;
 }
+
+.home-description:hover {
+    transform: translateY(-5px); /* Move the box slightly up */
+    box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.2); /* Add shadow effect */
+    background-color: rgba(255, 255, 255, 1); /* Make the background fully opaque on hover */
+    cursor: pointer;
+}
+
+.home-description i {
+    margin-right: 10px; /* Add space between the icon and the text */
+    color: #1976D2; /* Match the icon color with the text */
+    font-size: 1.8rem; /* Slightly larger icon size */
+}
+
 
 .image-caption-container {
     position: absolute;
     bottom: 20px;
-    width: 100%;
+    width: 80%;
     text-align: center;
+    margin-left: 10%;
 }
 
 .image-caption {
-    font-size: 2rem;
+    font-size: 150%;
     color: #ffffff;
     font-style: italic;
     text-shadow: 2px 2px 4px rgba(104, 123, 163, 0.7);
-    padding: 10px;
     background-color: rgba(92, 122, 177, 0.5);
     border-radius: 5px;
 }
 
-/* Ensure text visibility on mobile */
-@media (max-width: 768px) {
-    .home-title {
-        font-size: 2rem;
-    }
-
-    .home-description {
-        font-size: 1rem;
-    }
-
-    .image-caption {
-        font-size: 1.5rem;
-    }
+/* New sections */
+.games-today {
+    margin-top: 40px;
+    padding: 20px;
+    padding-bottom: 80px;
+    border-radius: 10px;
+    transition: opacity 1s ease-in-out; /* Transition for fading */
+    z-index: 1;
 }
+    
+.games-today h2 {
+    font-size: 2.5rem; /* Slightly larger font for emphasis */
+    font-weight: 900;
+    color: #1976D2; /* Red */
+    text-align: left;
+    margin-bottom: 20px;
+    border-bottom: 1px solid #1976D2;
+    letter-spacing: 2px;
+}
+    
+.game-item {
+        position: relative;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px;
+        border-bottom: 1px solid #3e5b91; /* Slightly lighter dark blue */
+    }
+    
+.game-date {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding-right: 40px;
+    }
+    
+.teams-container {
+        flex: 3;
+        position: relative;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    
+.teams {
+        display: flex;
+        justify-content: space-between;
+        width: 100%; /* Make teams take up full width of container */
+        align-items: center;
+    }
+    
+.team {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+.team img {
+        width: 40px;
+        height: 40px;
+    }
+    
+.vs {
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+        font-weight: bold;
+        font-size: 18px;
+        color: #E63946; /* Red */
+        white-space: nowrap;
+    }
+    
+.location {
+        flex: 1;
+        padding-left: 40px;
+        text-align: right;
+        color: #0d0e0e;
+    }
+
+    
+    /* Ensure text visibility on mobile */
+    @media (max-width: 768px) {
+        .home-title {
+            font-size: 2rem;
+        }
+    
+        .home-description {
+            font-size: 1rem;
+        }
+    
+        .image-caption {
+            font-size: 1.5rem;
+        }
+    
+        .games-today {
+            padding: 15px;
+        }
+    
+        .games-today h2 {
+            font-size: 1.5rem;
+        }
+    
+        .game-item {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+    
+        .game-date {
+            padding-right: 0;
+        }
+    
+        .location {
+            padding-left: 0;
+            text-align: left;
+            margin-top: 10px;
+        }
+    }
