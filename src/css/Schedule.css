@@ -1,65 +1,78 @@
 .schedule-container {
     display: flex;
     flex-direction: column;
-    padding: 20px;
-    background-color: #22399c; /* Dark Blue */
-    color: #ffffff; /* White */
+    padding: 30px; /* Increased padding */
+    background: linear-gradient(135deg, #22399c 0%, #1a2b7f 100%); /* Subtle gradient background */
+    color: #ffffff; /* White text color */
     border-radius: 15px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Slight shadow for depth */
 }
 
 .schedule-container h1 {
-    font-size: 2.5rem; /* Slightly larger font size for more emphasis */
-    font-weight: 900; /* Keep the maximum font weight for boldness */
-    color: #ffffff; /* White color for text */
-    margin-bottom: 20px;
+    font-size: 2.5rem; /* Font size for emphasis */
+    font-weight: 900; /* Bold text */
+    color: #ffffff; /* White text */
+    margin-bottom: 30px;
     text-align: center;
-    line-height: 1.2; /* Adjusted line height for better spacing */
-    
-    /* Enhanced text-shadow for more depth */
-    text-shadow: 3px 3px 5px rgba(0, 0, 0, 0.6), 
-                 0 0 10px rgba(0, 0, 0, 0.5);
-    
-    /* Optional: Add some letter spacing for a more spaced-out look */
-    letter-spacing: 2px;
-    border-bottom: white 1px solid; /* Add a white border at the bottom */
-    /* Optional: Add a subtle gradient effect */
+    line-height: 1.2;
+    text-shadow: 3px 3px 5px rgba(0, 0, 0, 0.6), 0 0 10px rgba(0, 0, 0, 0.5); /* Enhanced text-shadow */
+    letter-spacing: 2px; /* Slight letter spacing */
+    border-bottom: rgba(255, 255, 255, 0.432) 1px solid; /* White bottom border */
     padding-bottom: 10px;
+    display: inline-flex; /* Aligns text and image inline */
+    align-items: center; /* Vertically center text and image */
+    justify-content: center; /* Horizontally center text and image */
+    width: 100%;
+}
+
+.nba-logo-inline {
+    width: 10%; /* Adjusted logo size */
+    height: auto;
+    margin-left: 15px; /* Space between text and logo */
 }
 
 .filter-section {
     display: flex;
     justify-content: space-between;
+    align-items: center; /* Align items vertically in the center */
     margin-bottom: 20px;
-  }
-  
-  .filter-section label {
+    padding: 10px;
+    background-color: #1a2b7f; /* Darker background for filter section */
+    border-radius: 10px;
+    box-shadow: 0 0 5px rgba(9, 44, 80, 0.5); /* Subtle focus shadow */
+}
+
+.filter-section label {
     display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin-right: 15px;
-    color: #ffffff; /* Adjust the color to match your theme */
-  }
-  
-  .filter-section input,
-  .react-datepicker-wrapper {
-    padding: 5px;
+    flex-direction: row; /* Align label and input side by side */
+    align-items: center; /* Vertically align the label and input */
+    color: #ffffff; /* White text color */
+    gap: 10px; /* Add space between label and input */
+    font-size: 1.5rem; /* Larger font size for labels */
+}
+
+.filter-section input,
+.react-datepicker-wrapper {
+    padding: 8px;
     border-radius: 5px;
     border: 1px solid #ccc;
-    margin-top: 5px;
     width: 160px; /* Adjust the width as needed */
-  }
-  
-  .react-datepicker__input-container input {
-    width: 100%;
-    padding: 5px;
-    border-radius: 5px;
-    border: 1px solid #ccc;
-  }
+    background-color: #ffffff; /* White background for inputs */
+    color: #000; /* Black text for contrast */
+    font-size: 1rem;
+}
+
+.filter-section input:focus,
+.react-datepicker__input-container input:focus {
+    border-color: #1976D2; /* Blue border on focus */
+    box-shadow: 0 0 5px rgba(25, 118, 210, 0.5); /* Subtle focus shadow */
+    outline: none;
+}
 
 .home-description i {
-    margin-right: 10px; /* Add space between the icon and the text */
-    color: #1976D2; /* Match the icon color with the text */
-    font-size: 1.8rem; /* Slightly larger icon size */
+    margin-right: 10px;
+    color: #1976D2; /* Icon color */
+    font-size: 1.8rem;
 }
 
 .game-item {
@@ -67,8 +80,14 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 10px;
-    border-bottom: 1px solid #3e5b91; /* Slightly lighter dark blue */
+    padding: 15px;
+    border-bottom: 1px solid #3e5b91;
+    transition: background-color 0.3s ease, transform 0.3s ease; /* Smooth hover transition */
+}
+
+.game-item:hover {
+    background-color: #2b4bbf; /* Slightly darker blue on hover */
+    transform: translateY(-5px); /* Slight lift on hover */
 }
 
 .game-date {
@@ -77,21 +96,22 @@
     flex-direction: column;
     align-items: center;
     padding-right: 40px;
-    color: #E0E1DD; /* Light Gray */
+    color: #E0E1DD; /* Light gray text */
+    font-size: 1.2rem;
 }
 
 .teams-container {
     flex: 3;
-    position: relative;
     display: flex;
     justify-content: center;
     align-items: center;
+    padding: 0 10px;
 }
 
 .teams {
     display: flex;
     justify-content: space-between;
-    width: 100%; /* Make teams take up full width of container */
+    width: 100%;
     align-items: center;
 }
 
@@ -99,6 +119,7 @@
     display: flex;
     align-items: center;
     gap: 10px;
+    font-size: 1.1rem; /* Adjust font size for better readability */
 }
 
 .team img {
@@ -115,12 +136,14 @@
     color: #E63946; /* Red */
     white-space: nowrap;
     text-shadow: black 1px 1px 1px; /* Add a shadow to the text */
-
+    pointer-events: none; /* Prevent hover effects on the vs element */
+    will-change: transform, color, text-shadow; /* Optimize performance by informing the browser of which properties will change */
 }
 
 .location {
     flex: 1;
     padding-left: 40px;
     text-align: right;
-    color: #A8DADC; /* Light Blue */
+    color: #A8DADC; /* Light blue text */
+    font-size: 1.1rem;
 }

@@ -109,25 +109,6 @@ VALUES
 ('Jazz', 'Utah', 'UTA', '1610612762', 'https://a.espncdn.com/i/teamlogos/nba/500/utah.png'),
 ('Wizards', 'Washington', 'WAS', '1610612764', 'https://a.espncdn.com/i/teamlogos/nba/500/wsh.png');
 
--- Games for August 22, 2024 (Thursday)
-INSERT INTO schedule (home_team_id, away_team_id, game_date, location)
-VALUES
-(2, 1, '2024-08-22 19:00:00', 'TD Garden'),
-(4, 3, '2024-08-22 19:30:00', 'Barclays Center'),
-(6, 5, '2024-08-22 20:00:00', 'Toyota Center'),
-(8, 7, '2024-08-22 20:30:00', 'Pepsi Center'),
-(10, 9, '2024-08-22 21:00:00', 'Little Caesars Arena'),
-(12, 11, '2024-08-22 21:30:00', 'Chase Center'),
-(14, 13, '2024-08-22 22:00:00', 'Staples Center'),
-(16, 15, '2024-08-22 22:30:00', 'American Airlines Arena'),
-(18, 17, '2024-08-22 19:00:00', 'Spectrum Center'),
-(20, 19, '2024-08-22 19:30:00', 'Capital One Arena'),
-(22, 21, '2024-08-22 20:00:00', 'Amway Center'),
-(24, 23, '2024-08-22 20:30:00', 'Madison Square Garden'),
-(26, 25, '2024-08-22 21:00:00', 'Wells Fargo Center'),
-(28, 27, '2024-08-22 21:30:00', 'Vivint Arena'),
-(30, 29, '2024-08-22 22:00:00', 'FedExForum');
-
 -- Games for August 23, 2024 (Friday)
 INSERT INTO schedule (home_team_id, away_team_id, game_date, location)
 VALUES

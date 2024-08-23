@@ -109,7 +109,8 @@ const TeamSelection = () => {
             onClick={(e) => e.stopPropagation()} // Prevents the click from bubbling up to the div
           />
           <label htmlFor={`team-${team.id}`}>
-            {team.teamName} ({team.teamAbbreviation})
+          <img src={team.teamLogoUrl} alt={`${team.teamName} logo`} className="team-logo" />
+            {team.teamName} ({team.teamAbbreviation}) 
           </label>
         </div>
       ))}

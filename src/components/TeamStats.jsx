@@ -8,6 +8,8 @@ const TeamStats = () => {
     const [stats, setStats] = useState(null);
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(false);
+    const [selectedTeamLogo, setSelectedTeamLogo] = useState('');
+
 
     useEffect(() => {
         // Fetch the list of teams from your backend
@@ -22,7 +24,10 @@ const TeamStats = () => {
     }, []);
 
     const handleTeamChange = (event) => {
-        setSelectedTeam(event.target.value);
+        const teamId = event.target.value;
+        setSelectedTeam(teamId);
+        const teamData = teams.find(team => team.nbaTeamId === teamId);
+        setSelectedTeamLogo(teamData.teamLogoUrl); // Set the team logo URL
     };
 
     const handleSeasonChange = (event) => {
@@ -214,25 +219,33 @@ const TeamStats = () => {
                 {loading ? 'Fetching Stats...' : 'Fetch Stats'}
             </button>
             {error && <p className="error-message">{error}</p>}
-            <div className="stats-display">
-                {stats ? (
-                    <div className="stats-data">
-                        <h3>{stats.teamName} ({stats.teamCity})</h3>
-                        <p>Conference: {stats.conference} ({stats.conferenceRank})</p>
-                        <p>Division: {stats.division} ({stats.divisionRank})</p>
-                        <p>Record: {stats.wins}-{stats.losses} ({(stats.winPercentage * 100).toFixed(2)}%)</p>
-                        <p>Home Record: {stats.homeRecord}</p>
-                        <p>Road Record: {stats.roadRecord}</p>
-                        <p>Streak: {stats.streak}</p>
-                        <p>Points Per Game: {stats.pointsPerGame}</p>
-                        <p>Opponent Points Per Game: {stats.opponentPointsPerGame}</p>
-                        <p>Point Differential: {stats.pointDifferential}</p>
-                    </div>
-                ) : (
-                    !loading && <p className="no-stats-message">Please select a team and season to view stats.</p>
-                )}
-            </div>
+            {stats && (
+        <div className="team-logo-container">
+            <h3 className="team-name-with-logo">
+                <img src={selectedTeamLogo} alt={`${stats.teamName} logo`} className="team-logo" />
+                {stats.teamName} ({stats.teamCity})
+            </h3>
         </div>
+    )}
+    
+    <div className="stats-display">
+        {stats ? (
+            <div className="stats-data">
+                <p>Conference: {stats.conference} ({stats.conferenceRank})</p>
+                <p>Division: {stats.division} ({stats.divisionRank})</p>
+                <p>Record: {stats.wins}-{stats.losses} ({(stats.winPercentage * 100).toFixed(2)}%)</p>
+                <p>Home Record: {stats.homeRecord}</p>
+                <p>Road Record: {stats.roadRecord}</p>
+                <p>Streak: {stats.streak}</p>
+                <p>Points Per Game: {stats.pointsPerGame}</p>
+                <p>Opponent Points Per Game: {stats.opponentPointsPerGame}</p>
+                <p>Point Differential: {stats.pointDifferential}</p>
+            </div>
+        ) : (
+            !loading && <p className="no-stats-message">Please select a team and season to view stats.</p>
+        )}
+    </div>
+</div>
     );
 };
 

@@ -1,63 +1,86 @@
 .profile-container {
     padding: 20px;
     background-color: #f5f5f5; /* Light grey background */
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 15px; /* Slightly more rounded corners */
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15); /* Slightly deeper shadow for more emphasis */
     max-width: 800px;
     margin: 20px auto;
     color: #333;
 }
 
-.profile-title {
-    font-size: 2rem;
-    color: #E53935; /* Red color for the title */
+.profile-container h3 {
+    font-size: 1.7rem; /* Slightly larger font size */
+    color: #1976D2;
+    letter-spacing: 1.5px; /* Increase letter spacing for a more open feel */
+    text-align: left;
     margin-bottom: 20px;
+    margin-top: 10px; /* Add more space below the title */
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2); /* Subtle text shadow */
+    font-weight: bold;
+    margin-left: 10px;
+    border-bottom: #115293 1px solid; /* Add a white border at the bottom */
+}
+
+.profile-title {
+    font-size: 2.5rem; /* Slightly larger font size */
+    color: #1976D2;
+    letter-spacing: 1.5px; /* Increase letter spacing for a more open feel */
     text-align: center;
+    margin: 20px; /* Add more space below the title */
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2); /* Subtle text shadow */
+    border-bottom: #115293 1px solid; /* Add a white border at the bottom */
+
 }
 
 .profile-info {
-    margin-bottom: 20px;
+    margin-bottom: 25px; /* Increase space below profile info */
+    margin-left: 15px;
 }
 
 .profile-info p {
-    font-size: 1.1rem;
-    color: #333;
-    margin-bottom: 10px;
+    font-size: 1.2rem; /* Slightly larger text */
+    color: #555; /* Softer text color */
+    margin-bottom: 15px; /* Increase space between paragraphs */
+    line-height: 1.6; /* Better readability */
 }
 
 .form-group {
-    margin-bottom: 15px;
+    margin-bottom: 20px; /* Increase spacing between form groups */
 }
 
 .form-group label {
     display: block;
-    font-size: 1rem;
-    margin-bottom: 5px;
+    font-size: 1.1rem; /* Slightly larger label text */
+    margin-bottom: 8px; /* Increase space below label */
+    color: #333; /* Ensure consistent text color */
+    font-weight: 600; /* Add weight to labels */
 }
 
 .form-group input {
     width: 100%;
-    padding: 10px;
+    padding: 12px; /* Slightly larger padding */
     font-size: 1rem;
-    border-radius: 5px;
+    border-radius: 8px; /* Slightly more rounded input */
     border: 1px solid #ccc;
-    transition: border-color 0.3s;
+    transition: border-color 0.3s, box-shadow 0.3s; /* Add transition for box-shadow */
 }
 
 .form-group input:focus {
     border-color: #1976D2; /* Blue border on focus */
+    box-shadow: 0 0 5px rgba(25, 118, 210, 0.3); /* Add subtle box-shadow on focus */
+    outline: none; /* Remove default outline */
 }
 
 .profile-button {
-    padding: 10px 20px;
-    font-size: 1rem;
+    padding: 12px 25px; /* Slightly larger padding */
+    font-size: 1.1rem; /* Slightly larger button text */
     background-color: #1976D2; /* Blue button */
     color: #fff;
     border: none;
-    border-radius: 5px;
+    border-radius: 8px; /* Slightly more rounded button */
     cursor: pointer;
-    transition: background-color 0.3s;
-    margin-top: 10px;
+    transition: background-color 0.3s, transform 0.3s; /* Add transition for transform */
+    margin-top: 15px; /* Increase space above button */
     display: block;
     width: 100%;
     text-align: center;
@@ -65,57 +88,69 @@
 
 .profile-button:hover {
     background-color: #115293; /* Darker blue on hover */
+    transform: translateY(-2px); /* Slight lift on hover */
 }
 
 .success-message {
     color: #4CAF50; /* Green color for success messages */
     margin-top: 15px;
     text-align: center;
+    font-size: 1.1rem; /* Slightly larger success message text */
+    font-weight: 600; /* Add weight to success messages */
 }
 
 .error-message {
     color: #E53935; /* Red color for error messages */
     margin-top: 15px;
     text-align: center;
+    font-size: 1.1rem; /* Slightly larger error message text */
+    font-weight: 600; /* Add weight to error messages */
 }
 
 .teams-list {
     list-style-type: none;
     padding: 0;
     margin: 0;
-    margin-bottom: 20px;
+    margin-bottom: 25px; /* Increase space below the list */
 }
 
 .team-item {
-    font-size: 1.1rem;
-    color: #333;
-    margin-bottom: 10px;
     padding: 10px;
     background-color: #fff;
     border-radius: 5px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin-bottom: 10px;
+  }
+  
+.team-item-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+.team-name {
+    font-size: 1.4rem; /* Adjust the size of the team name */
+    color: #333;
+    flex-grow: 1;
+    text-align: left;
+    max-width: 80%; /* Control the width to balance with the logo */
+}
+
+.team-logo {
+    width: 50px; /* Adjust the size of the logo */
+    height: auto;
+    margin-left: auto;
 }
 
 /* Media queries for responsive design */
 @media (max-width: 768px) {
-    .profile-container {
-        padding: 15px;
-    }
-
-    .profile-title {
-        font-size: 1.5rem;
-    }
-
-    .profile-info p {
+    .team-name {
         font-size: 1rem;
+        max-width: 60%; /* Adjust width for smaller screens */
     }
 
-    .profile-button {
-        font-size: 0.9rem;
-        padding: 8px 15px;
-    }
-
-    .team-item {
-        font-size: 1rem;
+    .team-logo {
+        width: 40px; /* Adjust the size of the logo for smaller screens */
     }
 }

@@ -180,10 +180,15 @@ const Profile = () => {
 
       {updateMessage && <p className="success-message">{updateMessage}</p>}
 
-      <h3>Your Teams:</h3>
+      <h3>Your Teams</h3>
       <ul className="teams-list">
         {userTeams.map((team) => (
-          <li key={team.id} className="team-item">{team.teamName}</li>
+          <li key={team.id} className="team-item">
+           <div className="team-item-content">
+              <span>{team.teamName}</span>
+               <img src={team.teamLogoUrl} alt={team.teamName} className="team-logo" />
+          </div>
+          </li>
         ))}
       </ul>
 

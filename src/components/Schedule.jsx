@@ -72,8 +72,10 @@ const Schedule = () => {
 
   return (
     <div className="schedule-container">
-      <h1>- 2024-25 Schedule -</h1>
-
+    <h1>
+      2024-25 Schedule
+      <img src='https://loodibee.com/wp-content/uploads/nba-logo-transparent.png' alt='NBA Logo' className="nba-logo-inline" />
+    </h1>
       {/* Filter Section */}
       <div className="filter-section">
         <label>
