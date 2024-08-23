@@ -2,20 +2,59 @@
     display: flex;
     flex-direction: column;
     padding: 20px;
-    background-color: #1c2f86; /* Dark Blue */
+    background-color: #22399c; /* Dark Blue */
     color: #ffffff; /* White */
     border-radius: 15px;
 }
 
 .schedule-container h1 {
-    font-size: 2rem; /* Even larger font size */
-    font-weight: 900; /* Maximum font weight for boldness */
-    color: #E63946; /* Red */
+    font-size: 2.5rem; /* Slightly larger font size for more emphasis */
+    font-weight: 900; /* Keep the maximum font weight for boldness */
+    color: #ffffff; /* White color for text */
     margin-bottom: 20px;
     text-align: center;
-    line-height: 1.2; /* Adjust line height for better spacing */
-    text-shadow: black 2px 2px 2px; /* Add a shadow to the text */
+    line-height: 1.2; /* Adjusted line height for better spacing */
+    
+    /* Enhanced text-shadow for more depth */
+    text-shadow: 3px 3px 5px rgba(0, 0, 0, 0.6), 
+                 0 0 10px rgba(0, 0, 0, 0.5);
+    
+    /* Optional: Add some letter spacing for a more spaced-out look */
+    letter-spacing: 2px;
+    border-bottom: white 1px solid; /* Add a white border at the bottom */
+    /* Optional: Add a subtle gradient effect */
+    padding-bottom: 10px;
 }
+
+.filter-section {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+  }
+  
+  .filter-section label {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-right: 15px;
+    color: #ffffff; /* Adjust the color to match your theme */
+  }
+  
+  .filter-section input,
+  .react-datepicker-wrapper {
+    padding: 5px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    margin-top: 5px;
+    width: 160px; /* Adjust the width as needed */
+  }
+  
+  .react-datepicker__input-container input {
+    width: 100%;
+    padding: 5px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+  }
 
 .home-description i {
     margin-right: 10px; /* Add space between the icon and the text */

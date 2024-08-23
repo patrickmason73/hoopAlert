@@ -63,6 +63,11 @@ const TeamSelection = () => {
   }, [token]);
 
   const handleCheckboxChange = async (teamId, isChecked) => {
+    if (!userId) {
+      console.error('User data not loaded yet');
+      return;
+  }
+  
     try {
       const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/users/${userId}/teams/${teamId}`, {
         method: isChecked ? 'POST' : 'DELETE',
@@ -88,27 +93,32 @@ const TeamSelection = () => {
 
   return (
     <div className="team-selection">
-      <h2>Select Teams for Reminders</h2>
-      <div className="team-checkboxes">
-        {teams.map((team) => (
-          <div key={team.id} className="team-checkbox">
-            <input
-              type="checkbox"
-              id={`team-${team.id}`}
-              checked={userTeams.includes(team.id)}
-              onChange={(e) => handleCheckboxChange(team.id, e.target.checked)}
-            />
-            <label htmlFor={`team-${team.id}`}>
-              {team.teamName} ({team.teamAbbreviation})
-            </label>
-          </div>
-        ))}
-      </div>
-      <button className="back-to-profile-button" onClick={() => navigate('/profile')}>
-        Back to Profile
-      </button>
+    <h2>Select Teams for Reminders</h2>
+    <div className="team-checkboxes">
+      {teams.map((team) => (
+        <div 
+          key={team.id} 
+          className="team-checkbox" 
+          onClick={() => handleCheckboxChange(team.id, !userTeams.includes(team.id))}
+        >
+          <input
+            type="checkbox"
+            id={`team-${team.id}`}
+            checked={userTeams.includes(team.id)}
+            onChange={(e) => handleCheckboxChange(team.id, e.target.checked)}
+            onClick={(e) => e.stopPropagation()} // Prevents the click from bubbling up to the div
+          />
+          <label htmlFor={`team-${team.id}`}>
+            {team.teamName} ({team.teamAbbreviation})
+          </label>
+        </div>
+      ))}
     </div>
-  );
+    <button className="back-to-profile-button" onClick={() => navigate('/profile')}>
+      Back to Profile
+    </button>
+  </div>
+);
 };
 
 export default TeamSelection;

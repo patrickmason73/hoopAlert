@@ -192,7 +192,7 @@ const Profile = () => {
       </button>
 
       <button onClick={triggerRemindersForToday} className="profile-button">
-        Trigger Today's Reminders
+        Send Today's Reminders
       </button>
 
       {triggerMessage && <p className="success-message">{triggerMessage}</p>}

@@ -73,53 +73,110 @@ const TeamStats = () => {
         if (data.length === 0) return null;
 
         const [
-            ,
+            leagueId,
             seasonId,
             teamId,
-            city,
+            teamCity,
             teamName,
             conference,
             conferenceRecord,
-            conferenceRank,
-            ,
+            playoffRank,
+            clinchIndicator,
             division,
             divisionRecord,
             divisionRank,
             wins,
             losses,
             winPercentage,
-            ,
-            ,
+            leagueRank,
+            record,
             homeRecord,
             roadRecord,
-            streak,
-            pointsPerGame,
-            opponentPointsPerGame,
-            pointDifferential
+            l10,
+            last10Home,
+            last10Road,
+            ot,
+            threePtsOrLess,
+            tenPtsOrMore,
+            longHomeStreak,
+            strLongHomeStreak,
+            longRoadStreak,
+            strLongRoadStreak,
+            longWinStreak,
+            longLossStreak,
+            currentHomeStreak,
+            strCurrentHomeStreak,
+            currentRoadStreak,
+            strCurrentRoadStreak,
+            currentStreak,
+            strCurrentStreak,
+            conferenceGamesBack,
+            divisionGamesBack,
+            clinchedConferenceTitle,
+            clinchedDivisionTitle,
+            clinchedPlayoffBirth,
+            eliminatedConference,
+            eliminatedDivision,
+            aheadAtHalf,
+            behindAtHalf,
+            tiedAtHalf,
+            aheadAtThird,
+            behindAtThird,
+            tiedAtThird,
+            score100Pts,
+            oppScore100Pts,
+            oppOver500,
+            leadInFgPct,
+            leadInReb,
+            fewerTurnovers,
+            pointsPg,
+            oppPointsPg,
+            diffPointsPg,
+            vsEast,
+            vsAtlantic,
+            vsCentral,
+            vsSoutheast,
+            vsWest,
+            vsNorthwest,
+            vsPacific,
+            vsSouthwest,
+            jan,
+            feb,
+            mar,
+            apr,
+            may,
+            jun,
+            jul,
+            aug,
+            sep,
+            oct,
+            nov,
+            dec,
+            preAs,
+            postAs
         ] = data[0];
 
         return {
             seasonId,
             teamId,
-            city,
+            teamCity,
             teamName,
             conference,
-            conferenceRecord,
-            conferenceRank,
+            conferenceRank: playoffRank,
             division,
-            divisionRecord,
             divisionRank,
             wins,
             losses,
             winPercentage,
             homeRecord,
             roadRecord,
-            streak,
-            pointsPerGame,
-            opponentPointsPerGame,
-            pointDifferential
+            streak: currentStreak,
+            pointsPerGame: pointsPg,
+            opponentPointsPerGame: oppPointsPg,
+            pointDifferential: diffPointsPg,
         };
     };
+
 
     return (
         <div className="team-stats-container">
@@ -160,10 +217,10 @@ const TeamStats = () => {
             <div className="stats-display">
                 {stats ? (
                     <div className="stats-data">
-                        <h3>{stats.teamName} ({stats.city})</h3>
+                        <h3>{stats.teamName} ({stats.teamCity})</h3>
                         <p>Conference: {stats.conference} ({stats.conferenceRank})</p>
                         <p>Division: {stats.division} ({stats.divisionRank})</p>
-                        <p>Record: {stats.wins}-{stats.losses} ({stats.winPercentage}%)</p>
+                        <p>Record: {stats.wins}-{stats.losses} ({(stats.winPercentage * 100).toFixed(2)}%)</p>
                         <p>Home Record: {stats.homeRecord}</p>
                         <p>Road Record: {stats.roadRecord}</p>
                         <p>Streak: {stats.streak}</p>
